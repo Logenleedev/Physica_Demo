@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<keystone>
+  <surface h="410" res="20" w="410" x="166.0" y="51.0">
+    <point i="0" u="0.0" v="0.0" x="0.0" y="0.0"/>
+    <point i="20" u="410.0" v="0.0" x="797.0" y="-21.0"/>
+    <point i="420" u="0.0" v="410.0" x="47.0" y="766.0"/>
+    <point i="440" u="410.0" v="410.0" x="818.0" y="708.0"/>
+  </surface>
+</keystone>
