@@ -22,6 +22,9 @@ void oscEvent(OscMessage msg) {
       cubes[id].speedX = 1000.0 * float(cubes[id].x - cubes[id].prex) / elapsedTime;
       cubes[id].speedY = 1000.0 * float(cubes[id].y - cubes[id].prey) / elapsedTime;
 
+      cubes[id].preSpeedX = cubes[id].speedX;
+      cubes[id].preSpeedY = cubes[id].speedY;
+      
 
       cubes[id].prex = cubes[id].x;
       cubes[id].prey = cubes[id].y;
@@ -78,6 +81,7 @@ void oscEvent(OscMessage msg) {
     int double_tap =msg.get(4).intValue();
     int face_up =msg.get(5).intValue();
     int shake_level =msg.get(6).intValue();
+
     //println("motion for id "+id +": " + flatness +", "+ hit+", "+ double_tap+", "+ face_up+", "+ shake_level);
   }
 }

@@ -126,7 +126,7 @@ void draw() {
     println("Pre press is: " + cubes[0].pre_press);
     println("Press is: " + cubes[0].press);
     
-    print("Shake Level is: " + cubes[0].hitLevel);
+    print("hit Level is: " + cubes[0].hitLevel);
 
     if (cubes[0].isLost==false && cubes[0].pre_press == 0 && cubes[0].press == 128) {
 

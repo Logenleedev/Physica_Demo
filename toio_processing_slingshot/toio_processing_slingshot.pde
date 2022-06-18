@@ -38,9 +38,13 @@ boolean mouseDrive = false;
 boolean chase = false;
 boolean spin = false;
 boolean drop = false;
+boolean release = false;
 
 float x_vel;
 float y_vel;
+
+
+
 
 void settings() {
   size(1000, 1000, P3D);
@@ -72,7 +76,7 @@ void setup() {
   /* create a particle system */
   mPhysics = new Physics();
   /* create a viscous force that slows down all motion; 0 means no slowing down. */
-  ViscousDrag myDrag = new ViscousDrag(0.25f);
+  ViscousDrag myDrag = new ViscousDrag(0.5f);
   mPhysics.add(myDrag);
   /* create two particles that we can connect with a spring */
   Particle myA = mPhysics.makeParticle();
@@ -86,6 +90,7 @@ void setup() {
    */
   myA.fixed(true);
   mSpring = mPhysics.makeSpring(myA, myB);
+  mSpring.setOneWay(true);
 
   mParticle = mPhysics.makeParticle();
 
@@ -111,8 +116,6 @@ void draw() {
   //draw the "mat"
   fill(255);
   rect(45, 45, 410, 410);
-
-
 
 
 
@@ -161,15 +164,23 @@ void draw() {
       if (cubes[i].isLost == true) {
         cubes[i].pre_press = 0;
         cubes[i].press = 0;
+        cubes[i].state = 1;
       }
 
+
+    
       if (cubes[i].isLost==false && cubes[i].p_isLost == true) {
         mSpring.b().position().set(cubes[i].x, cubes[i].y);
       }
       if (cubes[i].isLost==false) {
+        cubes[i].pre_spring_length = cubes[i].current_spring_length;
+        cubes[i].current_spring_length = mSpring.currentLength();
 
 
-        if (cubes[i].pre_press == 0 && cubes[i].press == 0) {
+        println(cubes[i].state);
+
+        if (cubes[i].current_spring_length > 50 && cubes[i].state == 1) {
+          //println("1 count is:" + count);
           aimCubePosVel(cubes[i].id, mSpring.b().position().x, mSpring.b().position().y, mSpring.b().velocity().x, mSpring.b().velocity().y);
           if ( eventDetection(cubes[i].x, cubes[i].y, cubes[i].prex, cubes[i].prey, cubes[i].speedX, cubes[i].speedY) ) {
             mSpring.b().position().set(cubes[i].x, cubes[i].y);
@@ -177,18 +188,25 @@ void draw() {
           }
         }
 
-        if (cubes[i].pre_press == 0 && cubes[i].press == 128) {
+        if (cubes[i].pre_spring_length > 50 && cubes[i].current_spring_length < 50 && cubes[i].state == 1) {
+          //println("2 count is:" + count);
           mParticle.position().set(cubes[i].x, cubes[i].y);
           mParticle.velocity().set((mSpring.b().velocity().x)/25, (mSpring.b().velocity().y)/25 );
           mParticle.velocity().mult(10);
+          cubes[i].state += 1;
         }
 
-
-        if (cubes[i].pre_press == 128 && cubes[i].press == 0 ) {
-          println(mSpring.currentLength());
+        if (cubes[i].state >= 2 ) {
+          //println("3 count is:" + count);
+          //println(mSpring.currentLength());
           aimCubePosVel(cubes[i].id, mParticle.position().x, mParticle.position().y, mParticle.velocity().x, mParticle.velocity().y);
-          ellipse(mParticle.position().x, mParticle.position().y, 5, 5);
+          cubes[i].state += 1;
         }
+        
+
+
+
+        ellipse(mParticle.position().x, mParticle.position().y, 5, 5);
       }
     }
   }

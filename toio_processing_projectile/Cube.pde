@@ -8,6 +8,9 @@ class Cube {
   int press;
   int pre_press;
 
+  float preSpeedX;
+  float preSpeedY;
+
   int shakeLevel;
   int hitLevel;
   int faceUp;

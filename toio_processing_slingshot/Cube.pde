@@ -4,9 +4,16 @@ class Cube {
   int prex;
   int prey;
   float speedX;
+  
+  float pre_spring_length;
+  float current_spring_length;
 
   int press;
   int pre_press;
+  int state = 1;
+  
+  float preSpeedX;
+  float preSpeedY;
 
   float speedY;
   int lastTime = 0;
