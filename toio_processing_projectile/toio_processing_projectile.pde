@@ -17,6 +17,8 @@ Particle mParticle;
 
 
 
+
+
 //for OSC
 OscP5 oscP5;
 //where to send the commands to
@@ -63,7 +65,7 @@ void setup() {
 
   //do not send TOO MANY PACKETS
   //we'll be updating the cubes every frame, so don't try to go too high
-  frameRate(30);
+  frameRate(50);
 
   mPhysics = new Physics();
   /* create a gravitational force */
@@ -117,34 +119,54 @@ void draw() {
     stroke(255, 255, 0);
     fill(255, 0, 0);
 
-    
+
 
 
 
     stroke(204, 102, 0);
 
-    println("Pre press is: " + cubes[0].pre_press);
-    println("Press is: " + cubes[0].press);
-    
-    print("hit Level is: " + cubes[0].hitLevel);
+    //println("Pre press is: " + cubes[0].pre_press);
+    //println("Press is: " + cubes[0].press);
 
-    if (cubes[0].isLost==false && cubes[0].pre_press == 0 && cubes[0].press == 128) {
+    //print("hit Level is: " + cubes[0].hitLevel);
+    for (int i = 0; i< nCubes; ++i) {
+      if (cubes[i].isLost == true) {
 
-      x_vel = cubes[0].x-cubes[0].prex;
-      y_vel = cubes[0].y-cubes[0].prey;
-      mParticle.position().set(cubes[0].x, cubes[0].y);
-      mParticle.velocity().set(x_vel, y_vel);
-      mParticle.velocity().mult(10);
+        cubes[i].state = 1;
+      }
+
+      if (cubes[i].isLost==false) {
+
+        if (cubes[i].state == 1) {
+          cubes[i].origin_x = cubes[i].x;
+          cubes[i].origin_y = cubes[i].y;
+          cubes[i].state += 1;
+        }
+        //println(cubes[i].origin_x + " " + cubes[i].origin_y);
+        //println(cubes[i].state);
+
+        ellipse(cubes[i].origin_x, cubes[i].origin_y, 30, 30);
+        println(dist(cubes[i].origin_x, cubes[i].origin_y, cubes[i].x, cubes[i].prey) > 60 && dist(cubes[i].origin_x, cubes[i].origin_y, cubes[i].x, cubes[i].y) > 60);
+        println(cubes[i].state);
+        if (dist(cubes[i].origin_x, cubes[i].origin_y, cubes[i].prex, cubes[i].prey) < 60 && dist(cubes[i].origin_x, cubes[i].origin_y, cubes[i].x, cubes[i].y) > 60 && (cubes[i].state == 2)) {
+          cubes[i].state += 1;
+          x_vel = cubes[i].x-cubes[i].prex;
+          y_vel = cubes[i].y-cubes[i].prey;
+          mParticle.position().set(cubes[i].x, cubes[i].y);
+          mParticle.velocity().set(x_vel, y_vel);
+          mParticle.velocity().mult(10);
+          //print("state 2 triggered!");
+        }
+
+
+        if (cubes[i].state > 2 ) {
+          ellipse(mParticle.position().x, mParticle.position().y, 10, 10);
+
+          aimCubePosVel(cubes[i].id, mParticle.position().x, mParticle.position().y, mParticle.velocity().y, mParticle.velocity().x);
+          //print("state 3 triggered!");
+        }
+      }
     }
-
-    if (cubes[0].isLost==false && cubes[0].pre_press == 128 && cubes[0].press == 0) {
-      ellipse(mParticle.position().x, mParticle.position().y, 10, 10);
-      
-      aimCubePosVel(cubes[0].id, mParticle.position().x, mParticle.position().y, mParticle.velocity().y, mParticle.velocity().x);
-      
-    } 
-    
-  
   }
 
   // toio drop code end
