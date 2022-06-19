@@ -146,8 +146,10 @@ void draw() {
         //println(cubes[i].state);
 
         ellipse(cubes[i].origin_x, cubes[i].origin_y, 30, 30);
-        println(dist(cubes[i].origin_x, cubes[i].origin_y, cubes[i].prex, cubes[i].prey) < 20);
-        if (dist(cubes[i].origin_x, cubes[i].origin_y, cubes[i].prex, cubes[i].prey) < 20 && dist(cubes[i].origin_x, cubes[i].origin_y, cubes[i].x, cubes[i].y) > 20 && cubes[i].state == 2) {
+        //println(dist(cubes[i].origin_x, cubes[i].origin_y, cubes[i].x, cubes[i].prey) > 60 && dist(cubes[i].origin_x, cubes[i].origin_y, cubes[i].x, cubes[i].y) > 60);
+        //println(cubes[i].state);
+        boolean condition = dist(cubes[i].origin_x, cubes[i].origin_y, cubes[i].x, cubes[i].prey) > 15 && dist(cubes[i].origin_x, cubes[i].origin_y, cubes[i].x, cubes[i].y) > 15;
+        if ((condition == true && cubes[i].state == 2)||(condition == true && cubes[i].state == 3)) {
           cubes[i].state += 1;
           x_vel = cubes[i].x-cubes[i].prex;
           y_vel = cubes[i].y-cubes[i].prey;
