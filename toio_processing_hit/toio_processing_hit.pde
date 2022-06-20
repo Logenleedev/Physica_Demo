@@ -100,9 +100,15 @@ void draw() {
     if (cubes[i].isLost==false) {
       pushMatrix();
       translate(cubes[i].x, cubes[i].y);
+      pushMatrix();
       rotate(cubes[i].deg * PI/180);
+      stroke(0);
       rect(-10, -10, 20, 20);
       rect(0, -5, 20, 10);
+      popMatrix();
+      stroke(255,0,0);
+      line(0, 0, cubes[i].speedX, cubes[i].speedY );
+      
       popMatrix();
     }
   }
@@ -151,11 +157,10 @@ void draw() {
         boolean condition = dist(cubes[i].origin_x, cubes[i].origin_y, cubes[i].x, cubes[i].prey) > 15 && dist(cubes[i].origin_x, cubes[i].origin_y, cubes[i].x, cubes[i].y) > 15;
         if ((condition == true && cubes[i].state == 2)) {
           cubes[i].state += 1;
-          x_vel = cubes[i].x-cubes[i].prex;
-          y_vel = cubes[i].y-cubes[i].prey;
+
           mParticle.position().set(cubes[i].x, cubes[i].y);
-          mParticle.velocity().set(x_vel, y_vel);
-          mParticle.velocity().mult(10);
+          mParticle.velocity().set(cubes[i].speedX, cubes[i].speedY);
+          //mParticle.velocity().mult(10);
           //print("state 2 triggered!");
         }
 

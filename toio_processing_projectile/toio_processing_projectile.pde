@@ -125,10 +125,7 @@ void draw() {
 
     stroke(204, 102, 0);
 
-    //println("Pre press is: " + cubes[0].pre_press);
-    //println("Press is: " + cubes[0].press);
 
-    //print("hit Level is: " + cubes[0].hitLevel);
     for (int i = 0; i< nCubes; ++i) {
       if (cubes[i].isLost == true) {
 
@@ -142,8 +139,7 @@ void draw() {
           cubes[i].origin_y = cubes[i].y;
           cubes[i].state += 1;
         }
-        //println(cubes[i].origin_x + " " + cubes[i].origin_y);
-        //println(cubes[i].state);
+
 
         ellipse(cubes[i].origin_x, cubes[i].origin_y, 30, 30);
         //println(dist(cubes[i].origin_x, cubes[i].origin_y, cubes[i].x, cubes[i].prey) > 60 && dist(cubes[i].origin_x, cubes[i].origin_y, cubes[i].x, cubes[i].y) > 60);
@@ -151,12 +147,9 @@ void draw() {
         boolean condition = dist(cubes[i].origin_x, cubes[i].origin_y, cubes[i].x, cubes[i].prey) > 60 && dist(cubes[i].origin_x, cubes[i].origin_y, cubes[i].x, cubes[i].y) > 60;
         if ((condition == true && cubes[i].state == 2)) {
           cubes[i].state += 1;
-          x_vel = cubes[i].x-cubes[i].prex;
-          y_vel = cubes[i].y-cubes[i].prey;
           mParticle.position().set(cubes[i].x, cubes[i].y);
-          mParticle.velocity().set(x_vel, y_vel);
-          mParticle.velocity().mult(10);
-          //print("state 2 triggered!");
+          mParticle.velocity().set(cubes[i].speedX, cubes[i].speedY);
+      
         }
 
 

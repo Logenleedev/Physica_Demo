@@ -11,6 +11,7 @@ class Cube {
   int press;
   int pre_press;
   int state = 1;
+
   
   float preSpeedX;
   float preSpeedY;

@@ -143,7 +143,7 @@ void draw() {
       mSpring.a().position().set(cubes[0].x, cubes[0].y);
     }
 
-    cubes[0].press = 0;
+
 
 
     stroke(255, 255, 0);
@@ -156,14 +156,20 @@ void draw() {
     stroke(204, 102, 0);
 
     ellipse(mSpring.a().position().x, mSpring.a().position().y, 5, 5);
+
+
+
     ellipse(mSpring.b().position().x, mSpring.b().position().y, 15, 15);
     line(mSpring.a().position().x, mSpring.a().position().y,
       mSpring.b().position().x, mSpring.b().position().y);
 
 
+    pushMatrix();
+    translate(mSpring.b().position().x, mSpring.b().position().y);
+    stroke(0, 255, 0);
+    line(0, 0, mSpring.b().velocity().x, mSpring.b().velocity().y);
+    popMatrix();
 
-
-    stroke(204, 102, 0);
 
     for (int i = 0; i< nCubes; ++i) {
 
@@ -171,6 +177,7 @@ void draw() {
         cubes[i].pre_press = 0;
         cubes[i].press = 0;
         cubes[i].state = 1;
+
       }
 
 
@@ -185,8 +192,23 @@ void draw() {
         cubes[i].current_spring_length = mSpring.currentLength();
 
 
-        println(cubes[i].state);
+        //println(cubes[i].state);
 
+        if (cubes[i].pre_press == 0 && cubes[i].press == 128 ) {
+          mSpring.a().position().set(cubes[i].x, cubes[i].y);
+          cubes[i].pre_spring_length = 10;
+        }
+
+        // anchor changing code
+        if (cubes[i].current_spring_length < 50 && cubes[i].pre_spring_length < 50) {
+          aimCubePosVel(cubes[i].id, mSpring.b().position().x, mSpring.b().position().y, mSpring.b().velocity().x, mSpring.b().velocity().y);
+          if ( eventDetection(cubes[i].x, cubes[i].y, cubes[i].prex, cubes[i].prey, cubes[i].speedX, cubes[i].speedY) ) {
+            mSpring.b().position().set(cubes[i].x, cubes[i].y);
+            println("spring forth touch detected!");
+          }
+        }
+
+        // slingshot release code
         if (cubes[i].current_spring_length > 50 && cubes[i].state == 1) {
           //println("1 count is:" + count);
           aimCubePosVel(cubes[i].id, mSpring.b().position().x, mSpring.b().position().y, mSpring.b().velocity().x, mSpring.b().velocity().y);
@@ -198,9 +220,9 @@ void draw() {
 
         if (cubes[i].pre_spring_length > 50 && cubes[i].current_spring_length < 50 && cubes[i].state == 1) {
           //println("2 count is:" + count);
-          mParticle.position().set(cubes[i].x, cubes[i].y);
-          mParticle.velocity().set((mSpring.b().velocity().x)/25, (mSpring.b().velocity().y)/25 );
-          mParticle.velocity().mult(10);
+          mParticle.position().set(mSpring.b().position().x, mSpring.b().position().y);
+          mParticle.velocity().set(mSpring.b().velocity().x, mSpring.b().velocity().y);
+
           cubes[i].state += 1;
         }
 
@@ -215,6 +237,11 @@ void draw() {
 
 
         ellipse(mParticle.position().x, mParticle.position().y, 5, 5);
+        pushMatrix();
+        translate(mParticle.position().x, mParticle.position().y);
+        stroke(0, 255, 0);
+        line(0, 0, mParticle.velocity().x, mParticle.velocity().y);
+        popMatrix();
       }
     }
   }
