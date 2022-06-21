@@ -7,13 +7,17 @@ import teilchen.cubicle.*;
 import teilchen.force.*;
 import teilchen.integration.*;
 import teilchen.util.*;
-
+import controlP5.*;
 
 Physics mPhysics;
 
 Particle mParticle;
 
 
+
+ControlP5 cp5;
+
+Accordion accordion;
 
 
 
@@ -30,12 +34,13 @@ boolean mouseDrive = false;
 boolean chase = false;
 boolean spin = false;
 boolean drop = false;
-
+Gravity mGravity = new Gravity();
 
 
 void settings() {
   size(1000, 1000, P3D);
 }
+
 
 
 void setup() {
@@ -66,7 +71,7 @@ void setup() {
 
   mPhysics = new Physics();
   /* create a gravitational force */
-  Gravity mGravity = new Gravity();
+  //Gravity mGravity = new Gravity();
   /* the direction of the gravity is defined by the 'force' vector */
   mGravity.force().set(0, 30);
   /* forces, like gravity or any other force, can be added to the system. they will be automatically applied to
@@ -75,7 +80,7 @@ void setup() {
   /* create a particle and add it to the system */
   mParticle = mPhysics.makeParticle();
 
-
+  parameter_gui();
 }
 
 void draw() {
@@ -83,8 +88,8 @@ void draw() {
   stroke(0);
   long now = System.currentTimeMillis();
 
-
-  
+  float s1 = cp5.getController("gravity").getValue();
+  mGravity.force().set(0, s1);
   //draw the "mat"
   fill(255);
   rect(45, 45, 410, 410);
