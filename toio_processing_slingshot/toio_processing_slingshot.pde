@@ -7,6 +7,7 @@ import teilchen.cubicle.*;
 import teilchen.force.*;
 import teilchen.integration.*;
 import teilchen.util.*;
+import controlP5.*;
 /*
  * this sketch demonstrates how to create a `Spring` that connects two particles. it also
  * demonstrates how to create a `ViscousDrag` to slow down particle motion over time.
@@ -18,6 +19,9 @@ Physics mPhysics;
 
 Spring mSpring;
 
+ControlP5 cp5;
+
+Accordion accordion;
 
 
 
@@ -39,6 +43,7 @@ boolean chase = false;
 boolean spin = false;
 boolean drop = false;
 boolean release = false;
+Gravity mGravity = new Gravity();
 
 float x_vel;
 float y_vel;
@@ -97,12 +102,14 @@ void setup() {
 
 
   /* create a gravitational force */
-  Gravity mGravity = new Gravity();
+
   /* the direction of the gravity is defined by the 'force' vector */
   mGravity.force().set(0, 50);
   /* forces, like gravity or any other force, can be added to the system. they will be automatically applied to
    all particles */
   mPhysics.add(mGravity);
+
+  parameter_gui();
 }
 
 void draw() {
@@ -113,6 +120,15 @@ void draw() {
   /* update the particle system */
   final float mDeltaTime = 1.0f / frameRate;
   mPhysics.step(mDeltaTime);
+
+
+  // change gravity using control p5 slider
+  float s1 = cp5.getController("gravity").getValue();
+  mGravity.force().set(0, s1);
+  
+  // change spring damping using control p5 slider
+  float s2 = cp5.getController("spring damping").getValue();
+  mSpring.damping(s2);
 
   //draw the "mat"
   fill(255);
@@ -177,7 +193,6 @@ void draw() {
         cubes[i].pre_press = 0;
         cubes[i].press = 0;
         cubes[i].state = 1;
-
       }
 
 
