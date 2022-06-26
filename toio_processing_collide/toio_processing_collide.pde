@@ -78,7 +78,7 @@ void setup() {
   frameRate(50);
 
   mPhysics = new Physics();
-  mPhysics.add(new ViscousDrag(0.5f));
+  mPhysics.add(new ViscousDrag(0.8f));
   /* create a gravitational force */
 
   /* the direction of the gravity is defined by the 'force' vector */
@@ -86,6 +86,8 @@ void setup() {
   /* forces, like gravity or any other force, can be added to the system. they will be automatically applied to
    all particles */
   mPhysics.add(mGravity);
+  /* forces, like gravity or any other force, can be added to the system. they will be automatically applied to
+   all particles */
   /* create a particle and add it to the system */
   mParticle = mPhysics.makeParticle();
   mParticle1 = mPhysics.makeParticle();
@@ -170,10 +172,10 @@ void draw() {
       ellipse(cubes[0].origin_x, cubes[0].origin_y, 30, 30);
       //println(dist(cubes[i].origin_x, cubes[i].origin_y, cubes[i].x, cubes[i].prey) > 60 && dist(cubes[i].origin_x, cubes[i].origin_y, cubes[i].x, cubes[i].y) > 60);
       //println(cubes[i].state);
-      boolean condition = dist(cubes[0].origin_x, cubes[0].origin_y, cubes[0].x, cubes[0].prey) > 8 && dist(cubes[0].origin_x, cubes[0].origin_y, cubes[0].x, cubes[0].y) > 8;
+      boolean condition = dist(cubes[0].origin_x, cubes[0].origin_y, cubes[0].x, cubes[0].prey) > 15 && dist(cubes[0].origin_x, cubes[0].origin_y, cubes[0].x, cubes[0].y) > 15;
       if ((condition == true && cubes[0].state == 2)) {
         cubes[0].state += 1;
-
+        mParticle.radius(35);
         mParticle.position().set(cubes[0].x, cubes[0].y);
         mParticle.velocity().set(cubes[0].speedX/2, cubes[0].speedY/2);
         mCollision.collision().add(mParticle);
@@ -210,10 +212,10 @@ void draw() {
       ellipse(cubes[1].origin_x, cubes[1].origin_y, 30, 30);
       //println(dist(cubes[i].origin_x, cubes[i].origin_y, cubes[i].x, cubes[i].prey) > 60 && dist(cubes[i].origin_x, cubes[i].origin_y, cubes[i].x, cubes[i].y) > 60);
       //println(cubes[i].state);
-      boolean condition = dist(cubes[1].origin_x, cubes[1].origin_y, cubes[1].x, cubes[1].prey) > 8 && dist(cubes[1].origin_x, cubes[1].origin_y, cubes[1].x, cubes[1].y) > 8;
+      boolean condition = dist(cubes[1].origin_x, cubes[1].origin_y, cubes[1].x, cubes[1].prey) > 15 && dist(cubes[1].origin_x, cubes[1].origin_y, cubes[1].x, cubes[1].y) > 15;
       if ((condition == true && cubes[1].state == 2)) {
         cubes[1].state += 1;
-
+        mParticle1.radius(35);
         mParticle1.position().set(cubes[1].x, cubes[1].y);
         mParticle1.velocity().set(cubes[1].speedX/2, cubes[1].speedY/2);
         mCollision.collision().add(mParticle1);

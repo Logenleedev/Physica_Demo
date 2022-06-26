@@ -23,7 +23,7 @@ void motorControl(int cubeId, float left, float right, int duration) {
   oscP5.send(msg, server[hostId]);
   
   
-}
+} 
 
 void light(int cubeId, int duration, int red, int green, int blue) {
   int hostId = cubeId/cubesPerHost;

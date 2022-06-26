@@ -40,6 +40,7 @@ boolean projectile = false;
 float x_vel;
 float y_vel;
 
+PVector v1, v2;
 CollisionManager mCollision;
 Gravity mGravity = new Gravity();
 
@@ -79,7 +80,7 @@ void setup() {
   mPhysics = new Physics();
   mPhysics.add(new ViscousDrag(0.5f));
   /* create a gravitational force */
-    
+
   /* the direction of the gravity is defined by the 'force' vector */
   mGravity.force().set(0, 30);
   /* forces, like gravity or any other force, can be added to the system. they will be automatically applied to
@@ -91,16 +92,19 @@ void setup() {
   Box myBox = new Box();
   myBox.min().set(50, 50, 0);
   myBox.max().set(400, 400, 0);
+  
   myBox.coefficientofrestitution(0.7f);
   myBox.reflect(true);
-  
-  
+
+
   mPhysics.add(myBox);
 
   parameter_gui();
 }
 
+
 void draw() {
+
   background(255);
   stroke(0);
   long now = System.currentTimeMillis();
@@ -113,8 +117,12 @@ void draw() {
   fill(255);
   rect(45, 45, 410, 410);
 
+  stroke(204, 102, 0);
+  line(50, 50, 400, 50);
 
-
+  line(400, 50, 400, 400);
+  line(400, 400, 50, 400);
+  line(50, 400, 50, 50);
 
 
 

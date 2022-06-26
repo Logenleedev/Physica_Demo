@@ -129,6 +129,10 @@ void draw() {
   // change spring damping using control p5 slider
   float s2 = cp5.getController("spring damping").getValue();
   mSpring.damping(s2);
+  
+  // change gravity using control p5 slider
+  float s3 = cp5.getController("spring strength").getValue();
+  mSpring.strength(s3);
 
   //draw the "mat"
   fill(255);
@@ -158,9 +162,9 @@ void draw() {
     if (cubes[0].isLost==false && cubes[0].pre_press == 0 && cubes[0].press == 128) {
       mSpring.a().position().set(cubes[0].x, cubes[0].y);
     }
+    
 
-
-
+    println(mSpring.strength());
 
     stroke(255, 255, 0);
     fill(255, 0, 0);

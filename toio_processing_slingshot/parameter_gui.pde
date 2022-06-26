@@ -4,7 +4,7 @@ void parameter_gui() {
   // group number 1, contains 2 bangs
   Group g1 = cp5.addGroup("environment parammeter")
     .setBackgroundColor(color(0, 64))
-    .setBackgroundHeight(150)
+    .setBackgroundHeight(250)
     ;
     
   cp5.addSlider("gravity")
@@ -13,9 +13,16 @@ void parameter_gui() {
     .setRange(0, 200)
     .setValue(50)
     .moveTo(g1);
+    
+  cp5.addSlider("spring strength")
+    .setPosition(80, 100)
+    .setSize(100, 20)
+    .setRange(0, 5)
+    .setValue(2)
+    .moveTo(g1);
    
   cp5.addSlider("spring damping")
-    .setPosition(80, 100)
+    .setPosition(80, 140)
     .setSize(100, 20)
     .setRange(0, 1)
     .setValue(0.1)
