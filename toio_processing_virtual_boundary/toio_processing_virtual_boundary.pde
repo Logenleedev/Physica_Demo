@@ -8,28 +8,41 @@ import teilchen.force.*;
 import teilchen.integration.*;
 import teilchen.util.*;
 import deadpixel.keystone.*;
+import controlP5.*;
 
 
+
+// Teilchen
 Physics mPhysics;
-
 Particle mParticle;
 Particle mParticle_2;
 PlaneDeflector mDeflector;
 
+
+//Control P5
+ControlP5 cp5;
+CheckBox checkbox;
+CheckBox checkbox1;
+Accordion accordion;
+
+//Keystone
 Keystone ks;
 CornerPinSurface surface;
 PGraphics offscreen;
 
-float gravity_num;
 
 //for OSC
 OscP5 oscP5;
 //where to send the commands to
 NetAddress[] server;
-
-
-//we'll keep the cubes here
 Cube[] cubes;
+
+float gravity_num;
+
+
+
+
+
 
 float pre_speedX[];
 float pre_speedY[];
@@ -43,7 +56,7 @@ Gravity mGravity = new Gravity();
 
 
 void settings() {
-  size(700, 700);
+  size(1000, 1000, P3D);
 }
 
 
@@ -96,9 +109,28 @@ void setup() {
   ViscousDrag myViscousDrag = new ViscousDrag();
   myViscousDrag.coefficient = 0.0001f;
   mPhysics.add(myViscousDrag);
+
+
+  //for projections
+  ks = new Keystone(this);
+  surface = ks.createCornerPinSurface(410, 410, 20);
+
+  // We need an offscreen buffer to draw the surface we
+  // want projected
+  // note that we're matching the resolution of the
+  // CornerPinSurface.
+  // (The offscreen buffer can be P2D or P3D)
+  offscreen = createGraphics(410, 410, P3D);
+
+  pushMatrix();
+  translate(45, 45);
+  parameter_gui();
+  popMatrix();
 }
 
 void draw() {
+  pushMatrix();
+  translate(-45, -45);
   background(255);
   stroke(0);
 
@@ -143,20 +175,71 @@ void draw() {
 
     stroke(255, 255, 0);
     fill(255, 0, 0);
-    //ellipse(mParticle.position().x, mParticle.position().y, 10, 10);
-    //ellipse(mParticle_2.position().x, mParticle_2.position().y, 10, 10);
+
 
     stroke(204, 102, 0);
 
-    // Plot velocity line
-    //if (cubes[0].isLost==false) {
-    //  line(cubes[0].x, cubes[0].y, cubes[0].x + mParticle.velocity().x, cubes[0].y+mParticle.velocity().y);
-    //}
+    //calculate acceleration
+    float acceleration_x = (cubes[0].pre_speedX[0] - cubes[0].pre_speedX[1])/mDeltaTime;
+    float acceleration_y = (cubes[0].pre_speedY[0] - cubes[0].pre_speedY[1])/mDeltaTime;
 
-    //if (cubes[0].isLost==false) {
-    //  line(cubes[1].x, cubes[1].y, cubes[1].x + mParticle_2.velocity().x, cubes[1].y+mParticle_2.velocity().y);
-    //}
 
+
+    offscreen.beginDraw();
+    offscreen.background(255);
+
+    if (checkbox.getArrayValue()[0] == 1) {
+      // draw velocity vector
+      offscreen.pushMatrix();
+      offscreen.translate(cubes[0].x, cubes[0].y);
+      offscreen.stroke(255, 0, 0);
+      drawArrow(0, 0, cubes[0].ave_speedX, cubes[0].ave_speedY, 0);
+      offscreen.popMatrix();
+    }
+
+    if (checkbox.getArrayValue()[1] == 1) {
+      // draw acceleration vector
+      offscreen.pushMatrix();
+      offscreen.translate(cubes[0].x, cubes[0].y);
+      offscreen.stroke(155, 89, 182);
+      drawArrow(0, 0, acceleration_x, acceleration_y, 0);
+      offscreen.popMatrix();
+    }
+    // draw plane
+    if (checkbox1.getArrayValue()[0] == 1) {
+      /* draw deflector */
+      offscreen.stroke(0);
+      strokeWeight(3.0f);
+      offscreen.line(mDeflector.plane().origin.x - mDeflector.plane().normal.y * -width,
+        mDeflector.plane().origin.y + mDeflector.plane().normal.x * -width,
+        mDeflector.plane().origin.x - mDeflector.plane().normal.y * width,
+        mDeflector.plane().origin.y + mDeflector.plane().normal.x * width);
+      strokeWeight(1.0f);
+      offscreen.line(mDeflector.plane().origin.x,
+        mDeflector.plane().origin.y,
+        mDeflector.plane().origin.x + mDeflector.plane().normal.x * 20,
+        mDeflector.plane().origin.y + mDeflector.plane().normal.y * 20);
+    }
+
+
+    // draw path
+    if (checkbox1.getArrayValue()[2] == 1) {
+      if (cubes[0].isLost == false) {
+        for (int i = 0; i < cubes[0].aveFrameNumPosition; i++) {
+          fill(0, 0, 0);
+          offscreen.ellipse(cubes[0].cube_position_x[i], cubes[0].cube_position_y[i], 2, 2);
+        }
+      }
+    }
+    // draw particle 1 location
+    offscreen.ellipse(mParticle.position().x, mParticle.position().y, 10, 10);
+    offscreen.fill(255, 0, 0);
+
+    offscreen.endDraw();
+
+    background(0);
+    // render the scene, transformed using the corner pin surface
+    surface.render(offscreen);
 
     //ellipse(mParticle.position().x, mParticle.position().y, 5, 5);
 
@@ -171,13 +254,6 @@ void draw() {
 
       aimCubePosVel(cubes[0].id, mParticle.position().x, mParticle.position().y, mParticle.velocity().x, mParticle.velocity().y);
       //plot velocity
-      // Draw the scene, offscreen
-
-      pushMatrix();
-      translate(cubes[0].x, cubes[0].y);
-      stroke(255, 0, 0);
-      drawArrow(0, 0, cubes[0].ave_speedX, cubes[0].ave_speedY);
-      popMatrix();
     }
 
     //Second Particle
@@ -233,18 +309,7 @@ void draw() {
     }
   }
 
-  /* draw deflector */
-  stroke(0);
-  strokeWeight(3.0f);
-  line(mDeflector.plane().origin.x - mDeflector.plane().normal.y * -width,
-    mDeflector.plane().origin.y + mDeflector.plane().normal.x * -width,
-    mDeflector.plane().origin.x - mDeflector.plane().normal.y * width,
-    mDeflector.plane().origin.y + mDeflector.plane().normal.x * width);
-  strokeWeight(1.0f);
-  line(mDeflector.plane().origin.x,
-    mDeflector.plane().origin.y,
-    mDeflector.plane().origin.x + mDeflector.plane().normal.x * 20,
-    mDeflector.plane().origin.y + mDeflector.plane().normal.y * 20);
+  popMatrix();
 }
 
 
@@ -257,50 +322,41 @@ void draw() {
 
 void keyPressed() {
   switch(key) {
-  case 'm':
-    mouseDrive = !mouseDrive;
-    chase = false;
-    spin = false;
-    break;
-  case 'n':
-    mouseDrive = false;
-    chase = false;
-    spin = false;
-    drop = false;
-    break;
   case 'c':
     // enter/leave calibration mode, where surfaces can be warped
     // and moved
     ks.toggleCalibration();
     break;
 
+  case 'l':
+    // loads the saved layout
+    ks.load();
+    break;
+
+  case 's':
+    // saves the layout
+    ks.save();
+    break;
   case 'd':
     drop = true;
     chase = false;
     spin = false;
     mouseDrive = false;
     break;
-  case 's':
-    chase = false;
-    mouseDrive = false;
-    spin = false;
-    break;
-  case 'p':
-    spin = !spin;
-    chase = false;
-    mouseDrive=false;
+
   case 'a':
     for (int i=0; i < nCubes; ++i) {
       aimMotorControl(i, 380, 260);
     }
     break;
-  case 'l':
+  case 'k':
     light(0, 100, 255, 0, 0);
     break;
   default:
     break;
   }
 }
+
 
 
 
@@ -314,12 +370,14 @@ void mouseReleased() {
   mouseDrive=false;
 }
 
-void drawArrow(float x1, float y1, float x2, float y2) {
-  float a = dist(x1, y1, x2, y2) / 50;
-  pushMatrix();
-  translate(x2, y2);
-  rotate(atan2(y2 - y1, x2 - x1));
-  triangle(- a * 2, - a, 0, 0, - a * 2, a);
-  popMatrix();
-  line(x1, y1, x2, y2);
+void drawArrow(float x1, float y1, float x2, float y2, int i) {
+  if (cubes[i].isLost==false) {
+    float a = dist(x1, y1, x2, y2) / 50;
+    offscreen.pushMatrix();
+    offscreen.translate(x2, y2);
+    offscreen.rotate(atan2(y2 - y1, x2 - x1));
+    offscreen.triangle(- a * 2, - a, 0, 0, - a * 2, a);
+    offscreen.popMatrix();
+    offscreen.line(x1, y1, x2, y2);
+  }
 }

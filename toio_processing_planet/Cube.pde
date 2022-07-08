@@ -5,9 +5,14 @@ class Cube {
   int shakeLevel;
   int hitLevel;
   int faceUp;
-  
+  int state = 1;
   int prex;
   int prey;
+  
+  
+  float origin_x;
+  float origin_y;
+
   float speedX;
   float speedY;
   int lastTime = 0;
@@ -26,8 +31,6 @@ class Cube {
   int aveFrameNum = 10;
   float pre_speedX[] = new float [aveFrameNum];
   float pre_speedY[] = new float [aveFrameNum];
-  
-  
 
 
   Cube(int i, boolean lost) {

@@ -12,14 +12,12 @@ import controlP5.*;
 Physics mPhysics;
 
 Particle mParticle;
+Particle mParticle1;
 
 
 ControlP5 cp5;
 
 Accordion accordion;
-
-
-
 
 
 
@@ -36,17 +34,13 @@ boolean mouseDrive = false;
 boolean chase = false;
 boolean spin = false;
 boolean drop = false;
-boolean projectile = false;
-float x_vel;
-float y_vel;
-
-PVector v1, v2;
-CollisionManager mCollision;
 Gravity mGravity = new Gravity();
+
 
 void settings() {
   size(1000, 1000, P3D);
 }
+
 
 
 void setup() {
@@ -64,9 +58,7 @@ void setup() {
   //server[1] = new NetAddress("192.168.0.103", 3334);
   //server[2] = new NetAddress("192.168.200.12", 3334);
 
-  mCollision = new CollisionManager();
-  mCollision.distancemode(CollisionManager.DISTANCE_MODE_FIXED);
-  mCollision.minimumDistance(50);
+
   //create cubes
   cubes = new Cube[nCubes];
   for (int i = 0; i< cubes.length; ++i) {
@@ -75,10 +67,9 @@ void setup() {
 
   //do not send TOO MANY PACKETS
   //we'll be updating the cubes every frame, so don't try to go too high
-  frameRate(50);
+  frameRate(30);
 
   mPhysics = new Physics();
-  mPhysics.add(new ViscousDrag(0.5f));
   /* create a gravitational force */
 
   /* the direction of the gravity is defined by the 'force' vector */
@@ -88,20 +79,10 @@ void setup() {
   mPhysics.add(mGravity);
   /* create a particle and add it to the system */
   mParticle = mPhysics.makeParticle();
-
-  Box myBox = new Box();
-  myBox.min().set(50, 50, 0);
-  myBox.max().set(400, 400, 0);
-  
-  myBox.coefficientofrestitution(0.7f);
-  myBox.reflect(true);
-
-
-  mPhysics.add(myBox);
+  mParticle1 = mPhysics.makeParticle();
 
   parameter_gui();
 }
-
 
 void draw() {
 
@@ -112,17 +93,12 @@ void draw() {
   // change gravity using control p5 slider
   float s1 = cp5.getController("gravity").getValue();
   mGravity.force().set(0, s1);
-
   //draw the "mat"
   fill(255);
   rect(45, 45, 410, 410);
 
-  stroke(204, 102, 0);
-  line(50, 50, 400, 50);
 
-  line(400, 50, 400, 400);
-  line(400, 400, 50, 400);
-  line(50, 400, 50, 50);
+
 
 
 
@@ -131,35 +107,28 @@ void draw() {
     if (cubes[i].isLost==false) {
       pushMatrix();
       translate(cubes[i].x, cubes[i].y);
-      pushMatrix();
       rotate(cubes[i].deg * PI/180);
-      stroke(0);
       rect(-10, -10, 20, 20);
       rect(0, -5, 20, 10);
-      popMatrix();
-      stroke(255, 0, 0);
-      line(0, 0, cubes[i].speedX, cubes[i].speedY );
-
       popMatrix();
     }
   }
 
   int time = 0;
+
+
   // toio drop code start
   if (drop) {
 
 
 
     final float mDeltaTime = 1.0f / frameRate;
-    mCollision.createCollisionResolvers();
-    mCollision.loop(mDeltaTime);
     mPhysics.step(mDeltaTime);
-    mCollision.removeCollisionResolver();
 
     stroke(255, 255, 0);
     fill(255, 0, 0);
 
-
+    ellipse(mParticle.position().x, mParticle.position().y, 10, 10);
 
 
 
@@ -167,45 +136,38 @@ void draw() {
 
 
     for (int i = 0; i< nCubes; ++i) {
-      if (cubes[i].isLost == true) {
 
-        cubes[i].state = 1;
+
+
+
+
+      if (cubes[i].isLost==false && cubes[i].p_isLost == true) {
+        mParticle.position().set(cubes[i].x, cubes[i].y);
+        mParticle.velocity().set(0, 0);
       }
-
       if (cubes[i].isLost==false) {
-
         if (cubes[i].state == 1) {
-          cubes[i].origin_x = cubes[i].x;
-          cubes[i].origin_y = cubes[i].y;
-          cubes[i].state += 1;
+          aimCubePosVel(cubes[i].id, mParticle.position().x, mParticle.position().y, mParticle.velocity().y, mParticle.velocity().x);
         }
-        //println(cubes[i].origin_x + " " + cubes[i].origin_y);
-        //println(cubes[i].state);
 
-        ellipse(cubes[i].origin_x, cubes[i].origin_y, 30, 30);
-        //println(dist(cubes[i].origin_x, cubes[i].origin_y, cubes[i].x, cubes[i].prey) > 60 && dist(cubes[i].origin_x, cubes[i].origin_y, cubes[i].x, cubes[i].y) > 60);
-        //println(cubes[i].state);
-        boolean condition = dist(cubes[i].origin_x, cubes[i].origin_y, cubes[i].x, cubes[i].prey) > 15 && dist(cubes[i].origin_x, cubes[i].origin_y, cubes[i].x, cubes[i].y) > 15;
-        if ((condition == true && cubes[i].state == 2)) {
-          cubes[i].state += 1;
-
+        println("current: "+ cubes[i].speedY);
+        //println("pre: "+ cubes[i].preSpeedY);
+        println("----------------");
+        if (dist(cubes[i].x, cubes[i].y , mParticle.position().x, mParticle.position().y) > 20 && sqrt(pow(cubes[i].speedY, 2) + pow(cubes[i].speedX, 2)) == 0) {
           mParticle.position().set(cubes[i].x, cubes[i].y);
-          mParticle.velocity().set(cubes[i].speedX/2, cubes[i].speedY/2);
-          mCollision.collision().add(mParticle);
+          mParticle.velocity().set(mParticle.velocity().x, -1*(mParticle.velocity().y)/2);
+
+          cubes[i].state += 1;
+
         }
-
-
-        if (cubes[i].state > 2 ) {
-          ellipse(mParticle.position().x, mParticle.position().y, 10, 10);
+        if (cubes[i].state >= 2) {
 
           aimCubePosVel(cubes[i].id, mParticle.position().x, mParticle.position().y, mParticle.velocity().y, mParticle.velocity().x);
-          //print("state 3 triggered!");
         }
       }
     }
   }
 
-  // toio drop code end
 
 
 
@@ -269,13 +231,15 @@ void draw() {
 }
 
 
+float calculateVel (float vx, float vy) {
 
+  float vel = sqrt(pow(vx, 2) + pow(vy, 2));
+  return vel;
+}
 
 void keyPressed() {
   switch(key) {
-  case 'q':
-    projectile = true;
-    break;
+
   case 'd':
     drop = true;
     chase = false;

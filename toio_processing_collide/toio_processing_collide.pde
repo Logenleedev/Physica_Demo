@@ -65,7 +65,7 @@ void setup() {
 
   mCollision = new CollisionManager();
   mCollision.distancemode(CollisionManager.DISTANCE_MODE_FIXED);
-  mCollision.minimumDistance(50);
+  mCollision.minimumDistance(80);
 
   //create cubes
   cubes = new Cube[nCubes];
@@ -75,7 +75,7 @@ void setup() {
 
   //do not send TOO MANY PACKETS
   //we'll be updating the cubes every frame, so don't try to go too high
-  frameRate(50);
+  frameRate(30);
 
   mPhysics = new Physics();
   mPhysics.add(new ViscousDrag(0.8f));
@@ -137,12 +137,12 @@ void draw() {
 
 
 
+
+
     final float mDeltaTime = 1.0f / frameRate;
     mCollision.createCollisionResolvers();
     mCollision.loop(mDeltaTime);
     mPhysics.step(mDeltaTime);
-    mCollision.removeCollisionResolver();
-
 
     stroke(255, 255, 0);
     fill(255, 0, 0);
@@ -175,9 +175,9 @@ void draw() {
       boolean condition = dist(cubes[0].origin_x, cubes[0].origin_y, cubes[0].x, cubes[0].prey) > 15 && dist(cubes[0].origin_x, cubes[0].origin_y, cubes[0].x, cubes[0].y) > 15;
       if ((condition == true && cubes[0].state == 2)) {
         cubes[0].state += 1;
-        mParticle.radius(35);
+
         mParticle.position().set(cubes[0].x, cubes[0].y);
-        mParticle.velocity().set(cubes[0].speedX/2, cubes[0].speedY/2);
+        mParticle.velocity().set(cubes[0].speedX/4, cubes[0].speedY/4);
         mCollision.collision().add(mParticle);
         //mParticle.velocity().mult(10);
         //print("state 2 triggered!");
@@ -185,7 +185,7 @@ void draw() {
 
 
       if (cubes[0].state > 2 ) {
-        ellipse(mParticle.position().x, mParticle.position().y, 25, 25);
+        ellipse(mParticle.position().x, mParticle.position().y, 50, 50);
 
         aimCubePosVel(cubes[0].id, mParticle.position().x, mParticle.position().y, mParticle.velocity().y, mParticle.velocity().x);
         //print("state 3 triggered!");
@@ -215,22 +215,26 @@ void draw() {
       boolean condition = dist(cubes[1].origin_x, cubes[1].origin_y, cubes[1].x, cubes[1].prey) > 15 && dist(cubes[1].origin_x, cubes[1].origin_y, cubes[1].x, cubes[1].y) > 15;
       if ((condition == true && cubes[1].state == 2)) {
         cubes[1].state += 1;
-        mParticle1.radius(35);
+
         mParticle1.position().set(cubes[1].x, cubes[1].y);
-        mParticle1.velocity().set(cubes[1].speedX/2, cubes[1].speedY/2);
+        mParticle1.velocity().set(cubes[1].speedX/4, cubes[1].speedY/4);
         mCollision.collision().add(mParticle1);
         //mParticle.velocity().mult(10);
         //print("state 2 triggered!");
       }
 
+      println(mParticle1.radius());
 
       if (cubes[1].state > 2 ) {
-        ellipse(mParticle1.position().x, mParticle1.position().y, 25, 25);
+        ellipse(mParticle1.position().x, mParticle1.position().y, 50, 50);
 
         aimCubePosVel(cubes[1].id, mParticle1.position().x, mParticle1.position().y, mParticle1.velocity().y, mParticle1.velocity().x);
         //print("state 3 triggered!");
       }
       // second particle end
+
+
+      mCollision.removeCollisionResolver();
     }
   }
 
@@ -310,6 +314,10 @@ void keyPressed() {
     chase = false;
     spin = false;
     mouseDrive = false;
+    break;
+
+  case 's':
+    spin = true;
     break;
 
   case 'a':

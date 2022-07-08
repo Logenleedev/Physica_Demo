@@ -19,17 +19,24 @@ void oscEvent(OscMessage msg) {
 
 
       float elapsedTime = System.currentTimeMillis() -  cubes[id].lastUpdate ;
-      cubes[id].speedX = 1000.0 * float(cubes[id].x - cubes[id].prex) / elapsedTime;
-      cubes[id].speedY = 1000.0 * float(cubes[id].y - cubes[id].prey) / elapsedTime;
-     
-      cubes[id].preSpeedX = cubes[id].speedX;
-      cubes[id].preSpeedY = cubes[id].speedY;
+
+
+
 
       cubes[id].prex = cubes[id].x;
       cubes[id].prey = cubes[id].y;
 
+
+
       cubes[id].x = posx;
       cubes[id].y = posy;
+
+
+      cubes[id].speedX = 1000.0 * float(cubes[id].x - cubes[id].prex) / elapsedTime;
+      cubes[id].speedY = 1000.0 * float(cubes[id].y - cubes[id].prey) / elapsedTime;
+
+      cubes[id].preSpeedX = cubes[id].speedX;
+      cubes[id].preSpeedY = cubes[id].speedY;
 
       cubes[id].deg = degrees;
 

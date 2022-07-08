@@ -11,7 +11,8 @@ class Cube {
   int press;
   int pre_press;
   int state = 1;
-
+  
+  int shakeLevel;
   
   float preSpeedX;
   float preSpeedY;

@@ -84,9 +84,12 @@ void setup() {
 }
 
 void draw() {
+  
+  
+  background(255);
   stroke(0);
   long now = System.currentTimeMillis();
-  
+
   // change gravity using control p5 slider
   float s1 = cp5.getController("gravity").getValue();
   mGravity.force().set(0, s1);
@@ -96,7 +99,7 @@ void draw() {
 
 
 
-  
+
 
 
   //draw the cubes
@@ -112,8 +115,8 @@ void draw() {
   }
 
   int time = 0;
-  
-  
+
+
   // toio drop code start
   if (drop) {
 
@@ -122,6 +125,15 @@ void draw() {
     final float mDeltaTime = 1.0f / frameRate;
     mPhysics.step(mDeltaTime);
 
+
+
+
+
+
+
+
+
+
     stroke(255, 255, 0);
     fill(255, 0, 0);
 
@@ -129,10 +141,9 @@ void draw() {
 
 
 
-    stroke(204, 102, 0);
 
     for (int i = 0; i< nCubes; ++i) {
-   
+    
       if (cubes[i].isLost==false && cubes[i].p_isLost == true) {
         mParticle.position().set(cubes[i].x, cubes[i].y);
         mParticle.velocity().set(0, 0);
@@ -143,7 +154,6 @@ void draw() {
         aimCubePosVel(cubes[i].id, mParticle.position().x, mParticle.position().y, mParticle.velocity().y, mParticle.velocity().x);
       }
     }
-
   }
 
   // toio drop code end
@@ -214,12 +224,13 @@ void draw() {
 
 void keyPressed() {
   switch(key) {
-  
+
   case 'd':
     drop = true;
     chase = false;
     spin = false;
     mouseDrive = false;
+
     break;
 
   case 'a':

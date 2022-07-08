@@ -1,20 +1,32 @@
 class Cube {
   int x;
   int y;
-  
-  int shakeLevel;
-  int hitLevel;
-  int faceUp;
-  
   int prex;
   int prey;
   float speedX;
+
+  int press;
+  int pre_press;
+
+  float preSpeedX;
+  float preSpeedY;
+
+  float pre_spring_length;
+  float current_spring_length;
+
+
+  float pre_dist;
+  float current_dist;
+  int state = 1;
+  float origin_x;
+  float origin_y;
+
   float speedY;
   int lastTime = 0;
   //int oidx;
   //int oidy;
   float targetx =-1;
-  float targety =-1;  
+  float targety =-1;
   boolean isLost;
   boolean p_isLost;
   int id;
@@ -26,8 +38,6 @@ class Cube {
   int aveFrameNum = 10;
   float pre_speedX[] = new float [aveFrameNum];
   float pre_speedY[] = new float [aveFrameNum];
-  
-  
 
 
   Cube(int i, boolean lost) {
@@ -36,7 +46,7 @@ class Cube {
     p_isLost = lost;
 
     lastUpdate = System.currentTimeMillis();
-    
+
     for (int j = 0; j< aveFrameNum; j++) {
       pre_speedX[j] = 0;
       pre_speedY[j] = 0;

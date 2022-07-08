@@ -125,11 +125,11 @@ void draw() {
   // change gravity using control p5 slider
   float s1 = cp5.getController("gravity").getValue();
   mGravity.force().set(0, s1);
-  
+
   // change spring damping using control p5 slider
   float s2 = cp5.getController("spring damping").getValue();
   mSpring.damping(s2);
-  
+
   // change gravity using control p5 slider
   float s3 = cp5.getController("spring strength").getValue();
   mSpring.strength(s3);
@@ -162,7 +162,7 @@ void draw() {
     if (cubes[0].isLost==false && cubes[0].pre_press == 0 && cubes[0].press == 128) {
       mSpring.a().position().set(cubes[0].x, cubes[0].y);
     }
-    
+
 
     println(mSpring.strength());
 

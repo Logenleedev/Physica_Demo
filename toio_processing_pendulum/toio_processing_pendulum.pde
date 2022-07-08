@@ -7,16 +7,18 @@ import teilchen.cubicle.*;
 import teilchen.force.*;
 import teilchen.integration.*;
 import teilchen.util.*;
-import deadpixel.keystone.*;
+import controlP5.*;
 
 Physics mPhysics;
 
-Particle mParticle;
+ControlP5 cp5;
 
-Keystone ks;
-CornerPinSurface surface;
+Particle mPendulumRoot;
+Accordion accordion;
 
-PGraphics offscreen;
+Particle mPendulumTip;
+
+
 
 //for OSC
 OscP5 oscP5;
@@ -31,12 +33,13 @@ boolean mouseDrive = false;
 boolean chase = false;
 boolean spin = false;
 boolean drop = false;
-
+Gravity mGravity = new Gravity();
 
 
 void settings() {
-  size(1000, 1000, P3D);
+  size(1000, 1000);
 }
+
 
 
 void setup() {
@@ -66,25 +69,22 @@ void setup() {
   frameRate(30);
 
   mPhysics = new Physics();
-  /* create a gravitational force */
-  Gravity mGravity = new Gravity();
   /* the direction of the gravity is defined by the 'force' vector */
   mGravity.force().set(0, 30);
   /* forces, like gravity or any other force, can be added to the system. they will be automatically applied to
    all particles */
   mPhysics.add(mGravity);
-  /* create a particle and add it to the system */
-  mParticle = mPhysics.makeParticle();
+  mPendulumRoot = mPhysics.makeParticle(0, 0, 0, 0.05f);
+  mPendulumRoot.position().set(width / 4f, 100);
+  mPendulumRoot.fixed(true);
+  mPendulumTip = mPhysics.makeParticle(0, 0, 0, 0.05f);
+  float mSegmentLength = height / 5.0f;
+  Spring mConnection = new Spring(mPendulumRoot, mPendulumTip, mSegmentLength);
+  mConnection.damping(0.0f);
+  mConnection.strength(10);
+  mPhysics.add(mConnection);
 
-  ks = new Keystone(this);
-  surface = ks.createCornerPinSurface(410, 410, 20);
-
-  // We need an offscreen buffer to draw the surface we
-  // want projected
-  // note that we're matching the resolution of the
-  // CornerPinSurface.
-  // (The offscreen buffer can be P2D or P3D)
-  offscreen = createGraphics(410, 410, P3D);
+  parameter_gui();
 }
 
 void draw() {
@@ -92,8 +92,9 @@ void draw() {
   stroke(0);
   long now = System.currentTimeMillis();
 
-
-
+  // change gravity using control p5 slider
+  float s1 = cp5.getController("gravity").getValue();
+  mGravity.force().set(0, s1);
   //draw the "mat"
   fill(255);
   rect(45, 45, 410, 410);
@@ -116,52 +117,48 @@ void draw() {
   }
 
   int time = 0;
+
+
   // toio drop code start
   if (drop) {
 
-    translate(-45, -45);
-    final float mDeltaTime = 1.0f / frameRate;
-    mPhysics.step(mDeltaTime);
-
-    stroke(255, 255, 0);
-    fill(255, 0, 0);
-    
-
-    // Draw the scene, offscreen
-    offscreen.beginDraw();
-    offscreen.background(255);
-    offscreen.ellipse(mParticle.position().x-45, mParticle.position().y-45, 10, 10);
-    
-    //offscreen.text(mParticle.position().x + ", " + mParticle.position().y, mParticle.position().x, mParticle.position().y, 10, 10);
-    offscreen.fill(255, 0, 0);
-    offscreen.endDraw();
-    
-    
-    
 
 
-    // most likely, you'll want a black background to minimize
-    // bleeding around your projection area
-    background(0);
+    mPhysics.step(1.0f / frameRate, 5);
 
-    // render the scene, transformed using the corner pin surface
-    surface.render(offscreen);
+    Particle p1 = mPendulumRoot;
+    Particle p2 = mPendulumTip;
 
-    stroke(204, 102, 0);
+    stroke(0, 191);
+    noFill();
+
+    println(p2.force());
+
+    line(p1.position().x, p1.position().y, p2.position().x, p2.position().y);
+    fill(0);
+    noStroke();
+    ellipse(p1.position().x, p1.position().y, 10, 10);
+    ellipse(p2.position().x, p2.position().y, 20, 20);
+
+    //plot velocity
+    pushMatrix();
+    translate(p2.position().x, p2.position().y);
+    stroke(0, 255, 0);
+    line(0, 0, p2.velocity().x, p2.velocity().y);
+    popMatrix();
 
     for (int i = 0; i< nCubes; ++i) {
 
       if (cubes[i].isLost==false && cubes[i].p_isLost == true) {
-        mParticle.position().set(cubes[i].x, cubes[i].y);
-        mParticle.velocity().set(0, 0);
-        mParticle.velocity().mult(10);
+        p2.position().set(cubes[i].x, cubes[i].y);
+        p2.velocity().set(0, 0);
+        p2.velocity().mult(10);
       }
       if (cubes[i].isLost==false) {
 
-        aimCubePosVel(cubes[i].id, mParticle.position().x, mParticle.position().y, mParticle.velocity().y, mParticle.velocity().x);
+        aimCubePosVel(cubes[i].id, p2.position().x, p2.position().y, p2.velocity().y, p2.velocity().x);
       }
     }
-    print(cubes[1].x, cubes[1].y);
   }
 
   // toio drop code end
@@ -221,7 +218,7 @@ void draw() {
   for (int i=0; i<nCubes; ++i) {
     // 500ms since last update
     cubes[i].p_isLost = cubes[i].isLost;
-    if (cubes[i].lastUpdate < now - 1500 && cubes[i].isLost==false) {
+    if (cubes[i].lastUpdate < now - 800 && cubes[i].isLost==false) {
       cubes[i].isLost= true;
     }
   }
@@ -232,21 +229,7 @@ void draw() {
 
 void keyPressed() {
   switch(key) {
-  case 'c':
-    // enter/leave calibration mode, where surfaces can be warped
-    // and moved
-    ks.toggleCalibration();
-    break;
 
-  case 'l':
-    // loads the saved layout
-    ks.load();
-    break;
-
-  case 's':
-    // saves the layout
-    ks.save();
-    break;
   case 'd':
     drop = true;
     chase = false;

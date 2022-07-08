@@ -118,6 +118,8 @@ void draw() {
   }
 
   int time = 0;
+  
+
   // toio drop code start
   if (drop) {
 
@@ -129,7 +131,7 @@ void draw() {
     stroke(255, 255, 0);
     fill(255, 0, 0);
 
-
+    
 
 
 
@@ -158,7 +160,7 @@ void draw() {
         if ((condition == true && cubes[i].state == 2)) {
           cubes[i].state += 1;
           mParticle.position().set(cubes[i].x, cubes[i].y);
-          mParticle.velocity().set(cubes[i].speedX, cubes[i].speedY);
+          mParticle.velocity().set(cubes[i].speedX/2, cubes[i].speedY/2);
         }
 
 

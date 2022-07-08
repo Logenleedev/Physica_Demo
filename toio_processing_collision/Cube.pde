@@ -3,6 +3,7 @@ class Cube {
   int y;
   int prex;
   int prey;
+
   float speedX;
 
   int press;
@@ -11,7 +12,7 @@ class Cube {
   float preSpeedX;
   float preSpeedY;
 
-
+  
 
   float pre_dist;
   float current_dist;

@@ -54,9 +54,6 @@ void oscEvent(OscMessage msg) {
           cubes[id].ave_speedY = sumY / float(cubes[id].aveFrameNum);
           
           //println(cubes[id].ave_speedX, cubes[id].ave_speedY);
-          
-  
-          
       if (cubes[id].isLost == true) {
         cubes[id].isLost = false;
       }

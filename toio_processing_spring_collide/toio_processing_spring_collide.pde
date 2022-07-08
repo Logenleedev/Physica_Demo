@@ -7,16 +7,24 @@ import teilchen.cubicle.*;
 import teilchen.force.*;
 import teilchen.integration.*;
 import teilchen.util.*;
-import deadpixel.keystone.*;
+import controlP5.*;
 
 Physics mPhysics;
+Spring mSpring;
 
 Particle mParticle;
 
-Keystone ks;
-CornerPinSurface surface;
+Particle myA;
+Particle myB;
 
-PGraphics offscreen;
+
+ControlP5 cp5;
+CheckBox checkbox;
+Accordion accordion;
+
+
+
+
 
 //for OSC
 OscP5 oscP5;
@@ -31,8 +39,13 @@ boolean mouseDrive = false;
 boolean chase = false;
 boolean spin = false;
 boolean drop = false;
+boolean projectile = false;
+float x_vel;
+float y_vel;
+int eventDectionIndex;
 
-
+CollisionManager mCollision;
+Gravity mGravity = new Gravity();
 
 void settings() {
   size(1000, 1000, P3D);
@@ -63,28 +76,16 @@ void setup() {
 
   //do not send TOO MANY PACKETS
   //we'll be updating the cubes every frame, so don't try to go too high
-  frameRate(30);
+  frameRate(50);
 
-  mPhysics = new Physics();
-  /* create a gravitational force */
-  Gravity mGravity = new Gravity();
-  /* the direction of the gravity is defined by the 'force' vector */
-  mGravity.force().set(0, 30);
-  /* forces, like gravity or any other force, can be added to the system. they will be automatically applied to
-   all particles */
-  mPhysics.add(mGravity);
-  /* create a particle and add it to the system */
-  mParticle = mPhysics.makeParticle();
+  
+  parameter_gui();
 
-  ks = new Keystone(this);
-  surface = ks.createCornerPinSurface(410, 410, 20);
 
-  // We need an offscreen buffer to draw the surface we
-  // want projected
-  // note that we're matching the resolution of the
-  // CornerPinSurface.
-  // (The offscreen buffer can be P2D or P3D)
-  offscreen = createGraphics(410, 410, P3D);
+  setupHitEventDetector();
+  setupProjectileEventDetector();
+  setup_grab_release();
+  setupCollision();
 }
 
 void draw() {
@@ -92,7 +93,9 @@ void draw() {
   stroke(0);
   long now = System.currentTimeMillis();
 
-
+  // change gravity using control p5 slider
+  float s1 = cp5.getController("gravity").getValue();
+  mGravity.force().set(0, s1);
 
   //draw the "mat"
   fill(255);
@@ -119,49 +122,22 @@ void draw() {
   // toio drop code start
   if (drop) {
 
-    translate(-45, -45);
-    final float mDeltaTime = 1.0f / frameRate;
-    mPhysics.step(mDeltaTime);
-
-    stroke(255, 255, 0);
-    fill(255, 0, 0);
-    
-
-    // Draw the scene, offscreen
-    offscreen.beginDraw();
-    offscreen.background(255);
-    offscreen.ellipse(mParticle.position().x-45, mParticle.position().y-45, 10, 10);
-    
-    //offscreen.text(mParticle.position().x + ", " + mParticle.position().y, mParticle.position().x, mParticle.position().y, 10, 10);
-    offscreen.fill(255, 0, 0);
-    offscreen.endDraw();
-    
-    
-    
-
-
-    // most likely, you'll want a black background to minimize
-    // bleeding around your projection area
-    background(0);
-
-    // render the scene, transformed using the corner pin surface
-    surface.render(offscreen);
-
-    stroke(204, 102, 0);
-
-    for (int i = 0; i< nCubes; ++i) {
-
-      if (cubes[i].isLost==false && cubes[i].p_isLost == true) {
-        mParticle.position().set(cubes[i].x, cubes[i].y);
-        mParticle.velocity().set(0, 0);
-        mParticle.velocity().mult(10);
-      }
-      if (cubes[i].isLost==false) {
-
-        aimCubePosVel(cubes[i].id, mParticle.position().x, mParticle.position().y, mParticle.velocity().y, mParticle.velocity().x);
-      }
+    if (checkbox.getArrayValue()[0] == 1) {
+      grab_release();
     }
-    print(cubes[1].x, cubes[1].y);
+
+    if (checkbox.getArrayValue()[1] == 1) {
+      projectile();
+    }
+    
+    if (checkbox.getArrayValue()[2] == 1) {
+      hit();
+    }
+    if (checkbox.getArrayValue()[3] == 1) {
+      collision();
+    }
+    
+    
   }
 
   // toio drop code end
@@ -232,20 +208,8 @@ void draw() {
 
 void keyPressed() {
   switch(key) {
-  case 'c':
-    // enter/leave calibration mode, where surfaces can be warped
-    // and moved
-    ks.toggleCalibration();
-    break;
-
-  case 'l':
-    // loads the saved layout
-    ks.load();
-    break;
-
-  case 's':
-    // saves the layout
-    ks.save();
+  case 'q':
+    projectile = true;
     break;
   case 'd':
     drop = true;

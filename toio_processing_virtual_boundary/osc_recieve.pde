@@ -22,9 +22,6 @@ void oscEvent(OscMessage msg) {
       cubes[id].speedX = 1000.0 * float(cubes[id].x - cubes[id].prex) / elapsedTime;
       cubes[id].speedY = 1000.0 * float(cubes[id].y - cubes[id].prey) / elapsedTime;
 
-      cubes[id].preSpeedX = cubes[id].speedX;
-      cubes[id].preSpeedY = cubes[id].speedY;
-      
 
       cubes[id].prex = cubes[id].x;
       cubes[id].prey = cubes[id].y;
@@ -57,6 +54,20 @@ void oscEvent(OscMessage msg) {
       cubes[id].ave_speedY = sumY / float(cubes[id].aveFrameNum);
 
       //println(cubes[id].ave_speedX, cubes[id].ave_speedY);
+
+      // position list start
+
+
+      for (int j = cubes[id].aveFrameNumPosition - 1; j > 0; j--) {
+        cubes[id].cube_position_y[j] = cubes[id].cube_position_y[j-1];
+        cubes[id].cube_position_x[j] = cubes[id].cube_position_x[j-1];
+      }
+      cubes[id].cube_position_y[0] = cubes[id].y;
+      cubes[id].cube_position_x[0] = cubes[id].x;
+
+      // position list end
+
+
       if (cubes[id].isLost == true) {
         cubes[id].isLost = false;
       }
@@ -66,11 +77,6 @@ void oscEvent(OscMessage msg) {
     int relid = msg.get(1).intValue();
     int id = cubesPerHost*hostId + relid;
     int pressValue =msg.get(2).intValue();
-    
-    
-    
-    cubes[id].pre_press = cubes[id].press;
-    cubes[id].press = pressValue;
     //println("Button pressed for id : "+id);
   } else if (msg.checkAddrPattern("/motion") == true) {
     int hostId = msg.get(0).intValue();
@@ -81,9 +87,6 @@ void oscEvent(OscMessage msg) {
     int double_tap =msg.get(4).intValue();
     int face_up =msg.get(5).intValue();
     int shake_level =msg.get(6).intValue();
-    
-    
-
     //println("motion for id "+id +": " + flatness +", "+ hit+", "+ double_tap+", "+ face_up+", "+ shake_level);
   }
 }
