@@ -47,6 +47,7 @@ float gravity_num;
 float pre_speedX[];
 float pre_speedY[];
 
+int projection_correction = 45;
 boolean mouseDrive = false;
 boolean chase = false;
 boolean spin = false;
@@ -121,16 +122,14 @@ void setup() {
   // CornerPinSurface.
   // (The offscreen buffer can be P2D or P3D)
   offscreen = createGraphics(410, 410, P3D);
-
-  pushMatrix();
-  translate(45, 45);
+  
   parameter_gui();
-  popMatrix();
+
 }
 
 void draw() {
-  pushMatrix();
-  translate(-45, -45);
+  //pushMatrix();
+  
   background(255);
   stroke(0);
 
@@ -169,7 +168,7 @@ void draw() {
   // toio drop code start
   if (drop) {
 
-
+   
     final float mDeltaTime = 1.0f / frameRate;
     mPhysics.step(mDeltaTime);
 
@@ -193,7 +192,7 @@ void draw() {
       offscreen.pushMatrix();
       offscreen.translate(cubes[0].x, cubes[0].y);
       offscreen.stroke(255, 0, 0);
-      drawArrow(0, 0, cubes[0].ave_speedX, cubes[0].ave_speedY, 0);
+      drawArrow(0, 0, cubes[0].ave_speedX , cubes[0].ave_speedY , 0);
       offscreen.popMatrix();
     }
 
@@ -202,23 +201,25 @@ void draw() {
       offscreen.pushMatrix();
       offscreen.translate(cubes[0].x, cubes[0].y);
       offscreen.stroke(155, 89, 182);
-      drawArrow(0, 0, acceleration_x, acceleration_y, 0);
+      drawArrow(0, 0, acceleration_x - projection_correction, acceleration_y - projection_correction, 0);
       offscreen.popMatrix();
     }
+    
+    
     // draw plane
     if (checkbox1.getArrayValue()[0] == 1) {
       /* draw deflector */
       offscreen.stroke(0);
       strokeWeight(3.0f);
-      offscreen.line(mDeflector.plane().origin.x - mDeflector.plane().normal.y * -width,
-        mDeflector.plane().origin.y + mDeflector.plane().normal.x * -width,
-        mDeflector.plane().origin.x - mDeflector.plane().normal.y * width,
-        mDeflector.plane().origin.y + mDeflector.plane().normal.x * width);
+      offscreen.line(mDeflector.plane().origin.x - mDeflector.plane().normal.y * -width - projection_correction,
+        mDeflector.plane().origin.y + mDeflector.plane().normal.x * -width - projection_correction,
+        mDeflector.plane().origin.x - mDeflector.plane().normal.y * width - projection_correction,
+        mDeflector.plane().origin.y + mDeflector.plane().normal.x * width - projection_correction);
       strokeWeight(1.0f);
-      offscreen.line(mDeflector.plane().origin.x,
-        mDeflector.plane().origin.y,
-        mDeflector.plane().origin.x + mDeflector.plane().normal.x * 20,
-        mDeflector.plane().origin.y + mDeflector.plane().normal.y * 20);
+      offscreen.line(mDeflector.plane().origin.x - projection_correction,
+        mDeflector.plane().origin.y - projection_correction,
+        mDeflector.plane().origin.x + mDeflector.plane().normal.x * 20 - projection_correction,
+        mDeflector.plane().origin.y + mDeflector.plane().normal.y * 20 - projection_correction);
     }
 
 
@@ -227,12 +228,12 @@ void draw() {
       if (cubes[0].isLost == false) {
         for (int i = 0; i < cubes[0].aveFrameNumPosition; i++) {
           fill(0, 0, 0);
-          offscreen.ellipse(cubes[0].cube_position_x[i], cubes[0].cube_position_y[i], 2, 2);
+          offscreen.ellipse(cubes[0].cube_position_x[i] - projection_correction, cubes[0].cube_position_y[i] - projection_correction, 2, 2);
         }
       }
     }
     // draw particle 1 location
-    offscreen.ellipse(mParticle.position().x, mParticle.position().y, 10, 10);
+    offscreen.ellipse(mParticle.position().x - projection_correction, mParticle.position().y - projection_correction, 10, 10);
     offscreen.fill(255, 0, 0);
 
     offscreen.endDraw();
@@ -309,7 +310,7 @@ void draw() {
     }
   }
 
-  popMatrix();
+  //popMatrix();
 }
 
 
@@ -374,10 +375,10 @@ void drawArrow(float x1, float y1, float x2, float y2, int i) {
   if (cubes[i].isLost==false) {
     float a = dist(x1, y1, x2, y2) / 50;
     offscreen.pushMatrix();
-    offscreen.translate(x2, y2);
+    offscreen.translate(x2 - projection_correction, y2- projection_correction);
     offscreen.rotate(atan2(y2 - y1, x2 - x1));
     offscreen.triangle(- a * 2, - a, 0, 0, - a * 2, a);
     offscreen.popMatrix();
-    offscreen.line(x1, y1, x2, y2);
+    offscreen.line(x1- projection_correction, y1- projection_correction, x2- projection_correction, y2- projection_correction);
   }
 }

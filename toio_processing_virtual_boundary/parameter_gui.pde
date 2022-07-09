@@ -23,7 +23,7 @@ void parameter_gui() {
     .setBackgroundHeight(300)
     ;
     
-  checkbox1 = cp5.addCheckBox("checkBox")
+  checkbox1 = cp5.addCheckBox("checkBox1")
     .setPosition(40, 60)
     .setSize(20, 20)
     .setItemsPerRow(1)
