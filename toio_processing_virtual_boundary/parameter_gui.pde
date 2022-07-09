@@ -12,8 +12,8 @@ void parameter_gui() {
     .setItemsPerRow(1)
     .setSpacingColumn(30)
     .setSpacingRow(20)
-    .addItem("Velocity", 0)
-    .addItem("Acceleration", 50)
+    .addItem("Object velocity", 0)
+    .addItem("Particle velocity", 50)
     .moveTo(g1)
     ;
 
@@ -32,6 +32,7 @@ void parameter_gui() {
     .addItem("Show plane", 0)
     .addItem("Show object", 50)
     .addItem("Show object path", 100)
+    .addItem("Show object position", 100)
     .moveTo(g2)
     ;
 

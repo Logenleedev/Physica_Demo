@@ -122,14 +122,13 @@ void setup() {
   // CornerPinSurface.
   // (The offscreen buffer can be P2D or P3D)
   offscreen = createGraphics(410, 410, P3D);
-  
-  parameter_gui();
 
+  parameter_gui();
 }
 
 void draw() {
   //pushMatrix();
-  
+
   background(255);
   stroke(0);
 
@@ -152,23 +151,13 @@ void draw() {
   //}
 
 
-  //draw the cubes
-  for (int i = 0; i < cubes.length; ++i) {
-    if (cubes[i].isLost==false) {
-      pushMatrix();
-      translate(cubes[i].x, cubes[i].y);
-      rotate(cubes[i].deg * PI/180);
-      rect(-10, -10, 20, 20);
-      rect(0, -5, 20, 10);
-      popMatrix();
-    }
-  }
+
 
   int time = 0;
   // toio drop code start
   if (drop) {
 
-   
+
     final float mDeltaTime = 1.0f / frameRate;
     mPhysics.step(mDeltaTime);
 
@@ -192,20 +181,20 @@ void draw() {
       offscreen.pushMatrix();
       offscreen.translate(cubes[0].x, cubes[0].y);
       offscreen.stroke(255, 0, 0);
-      drawArrow(0, 0, cubes[0].ave_speedX , cubes[0].ave_speedY , 0);
+      drawArrow(0, 0, cubes[0].ave_speedX, cubes[0].ave_speedY, 0);
       offscreen.popMatrix();
     }
 
     if (checkbox.getArrayValue()[1] == 1) {
-      // draw acceleration vector
+      // draw mParticle vector
       offscreen.pushMatrix();
       offscreen.translate(cubes[0].x, cubes[0].y);
       offscreen.stroke(155, 89, 182);
-      drawArrow(0, 0, acceleration_x - projection_correction, acceleration_y - projection_correction, 0);
+      drawArrow(0, 0, mParticle.velocity().x - projection_correction, mParticle.velocity().y - projection_correction, 0);
       offscreen.popMatrix();
     }
-    
-    
+
+
     // draw plane
     if (checkbox1.getArrayValue()[0] == 1) {
       /* draw deflector */
@@ -232,6 +221,22 @@ void draw() {
         }
       }
     }
+
+    if (checkbox1.getArrayValue()[3] == 1 ) {
+      //draw the cubes
+      for (int i = 0; i < cubes.length; ++i) {
+        if (cubes[i].isLost==false) {
+          pushMatrix();
+          translate(cubes[i].x - projection_correction, cubes[i].y - projection_correction);
+          rotate(cubes[i].deg * PI/180);
+          rect(-10, -10, 20, 20);
+          rect(0, -5, 20, 10);
+          popMatrix();
+        }
+      }
+    }
+
+
     // draw particle 1 location
     offscreen.ellipse(mParticle.position().x - projection_correction, mParticle.position().y - projection_correction, 10, 10);
     offscreen.fill(255, 0, 0);
