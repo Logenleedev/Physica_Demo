@@ -19,7 +19,7 @@ class Cube {
   float ave_speedX;
   float ave_speedY;
   int aveFrameNum = 10;
-  int aveFrameNumPosition = 20;
+  int aveFrameNumPosition = 1000;
   float pre_speedX[] = new float [aveFrameNum];
   float pre_speedY[] = new float [aveFrameNum];
   

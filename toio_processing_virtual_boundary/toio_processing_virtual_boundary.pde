@@ -167,10 +167,7 @@ void draw() {
 
     stroke(204, 102, 0);
 
-    //calculate acceleration
-    float acceleration_x = (cubes[0].pre_speedX[0] - cubes[0].pre_speedX[1])/mDeltaTime;
-    float acceleration_y = (cubes[0].pre_speedY[0] - cubes[0].pre_speedY[1])/mDeltaTime;
-
+   
 
 
     offscreen.beginDraw();
@@ -211,35 +208,40 @@ void draw() {
         mDeflector.plane().origin.y + mDeflector.plane().normal.y * 20 - projection_correction);
     }
 
+    // draw particle
 
+    if (checkbox1.getArrayValue()[1] == 1) {
+      // draw particle 1 location
+      offscreen.ellipse(mParticle.position().x - projection_correction, mParticle.position().y - projection_correction, 10, 10);
+      offscreen.fill(255, 0, 0);
+    }
+    
     // draw path
     if (checkbox1.getArrayValue()[2] == 1) {
-      if (cubes[0].isLost == false) {
+      //if (cubes[0].isLost == false) {
         for (int i = 0; i < cubes[0].aveFrameNumPosition; i++) {
           fill(0, 0, 0);
           offscreen.ellipse(cubes[0].cube_position_x[i] - projection_correction, cubes[0].cube_position_y[i] - projection_correction, 2, 2);
         }
-      }
+      //}
     }
 
     if (checkbox1.getArrayValue()[3] == 1 ) {
       //draw the cubes
       for (int i = 0; i < cubes.length; ++i) {
         if (cubes[i].isLost==false) {
-          pushMatrix();
-          translate(cubes[i].x - projection_correction, cubes[i].y - projection_correction);
-          rotate(cubes[i].deg * PI/180);
-          rect(-10, -10, 20, 20);
-          rect(0, -5, 20, 10);
-          popMatrix();
+          offscreen.pushMatrix();
+          offscreen.translate(cubes[i].x - projection_correction, cubes[i].y - projection_correction);
+          offscreen.rotate(cubes[i].deg * PI/180);
+          offscreen.rect(-10, -10, 20, 20);
+          offscreen.rect(0, -5, 20, 10);
+          offscreen.popMatrix();
         }
       }
     }
 
 
-    // draw particle 1 location
-    offscreen.ellipse(mParticle.position().x - projection_correction, mParticle.position().y - projection_correction, 10, 10);
-    offscreen.fill(255, 0, 0);
+
 
     offscreen.endDraw();
 

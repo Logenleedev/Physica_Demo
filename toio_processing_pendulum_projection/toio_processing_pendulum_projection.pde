@@ -8,16 +8,24 @@ import teilchen.force.*;
 import teilchen.integration.*;
 import teilchen.util.*;
 import controlP5.*;
+import deadpixel.keystone.*;
 
+// teilchen
 Physics mPhysics;
-
-ControlP5 cp5;
-
 Particle mPendulumRoot;
-Accordion accordion;
-
 Particle mPendulumTip;
 
+// controlP5
+ControlP5 cp5;
+CheckBox checkbox;
+CheckBox checkbox2;
+Accordion accordion;
+
+
+//Keystone
+Keystone ks;
+CornerPinSurface surface;
+PGraphics offscreen;
 
 
 //for OSC
@@ -29,6 +37,7 @@ NetAddress[] server;
 //we'll keep the cubes here
 Cube[] cubes;
 
+int projection_correction = 45;
 boolean mouseDrive = false;
 boolean chase = false;
 boolean spin = false;
@@ -37,7 +46,7 @@ Gravity mGravity = new Gravity();
 
 
 void settings() {
-  size(1000, 1000);
+  size(1000, 1000, P3D);
 }
 
 
@@ -83,6 +92,19 @@ void setup() {
   mConnection.damping(0.0f);
   mConnection.strength(10);
   mPhysics.add(mConnection);
+
+
+  //for projections
+  ks = new Keystone(this);
+  surface = ks.createCornerPinSurface(410, 410, 20);
+
+  // We need an offscreen buffer to draw the surface we
+  // want projected
+  // note that we're matching the resolution of the
+  // CornerPinSurface.
+  // (The offscreen buffer can be P2D or P3D)
+  offscreen = createGraphics(410, 410, P3D);
+
 
   parameter_gui();
 }
@@ -132,33 +154,76 @@ void draw() {
     stroke(0, 191);
     noFill();
 
-    println(p2.force());
 
-    line(p1.position().x, p1.position().y, p2.position().x, p2.position().y);
-    fill(0);
-    noStroke();
-    ellipse(p1.position().x, p1.position().y, 10, 10);
-    ellipse(p2.position().x, p2.position().y, 20, 20);
+    offscreen.beginDraw();
+    offscreen.background(255);
 
-    //plot velocity
-    pushMatrix();
-    translate(p2.position().x, p2.position().y);
-    stroke(0, 255, 0);
-    line(0, 0, p2.velocity().x, p2.velocity().y);
-    popMatrix();
+    // draw spring
+    if (checkbox2.getArrayValue()[0] == 1) {
+      offscreen.line(p1.position().x - projection_correction, p1.position().y - projection_correction, p2.position().x - projection_correction, p2.position().y - projection_correction);
+      
+    }
+    // draw particle
+    if (checkbox2.getArrayValue()[1] == 1) {
+      offscreen.fill(0);
+      offscreen.ellipse(p1.position().x - projection_correction, p1.position().y - projection_correction, 10, 10);
+      offscreen.ellipse(p2.position().x - projection_correction, p2.position().y - projection_correction, 20, 20);
+    }
+    // draw path
+    if (checkbox2.getArrayValue()[2] == 1) {
 
-    for (int i = 0; i< nCubes; ++i) {
+      for (int j = 0; j < cubes[0].aveFrameNumPosition; j++) {
 
-      if (cubes[i].isLost==false && cubes[i].p_isLost == true) {
-        p2.position().set(cubes[i].x, cubes[i].y);
+        offscreen.ellipse(cubes[0].cube_position_x[j] - projection_correction, cubes[0].cube_position_y[j] - projection_correction, 2, 2);
+      }
+    }
+    //draw the cubes
+    if (checkbox2.getArrayValue()[3] == 1 ) {
+
+      for (int i = 0; i < cubes.length; ++i) {
+        if (cubes[i].isLost==false) {
+          offscreen.pushMatrix();
+          offscreen.fill(255);
+          offscreen.translate(cubes[i].x - projection_correction, cubes[i].y - projection_correction);
+          offscreen.rotate(cubes[i].deg * PI/180);
+          offscreen.rect(-10, -10, 20, 20);
+          offscreen.rect(0, -5, 20, 10);
+          offscreen.popMatrix();
+        }
+      }
+    }
+
+
+    if (checkbox.getArrayValue()[0] == 1) {
+
+
+
+      //plot velocity
+      pushMatrix();
+      translate(p2.position().x, p2.position().y);
+      stroke(0, 255, 0);
+      line(0, 0, p2.velocity().x, p2.velocity().y);
+      popMatrix();
+
+
+
+
+      if (cubes[0].isLost==false && cubes[0].p_isLost == true) {
+        p2.position().set(cubes[0].x, cubes[0].y);
         p2.velocity().set(0, 0);
         p2.velocity().mult(10);
       }
-      if (cubes[i].isLost==false) {
+      if (cubes[0].isLost==false) {
 
-        aimCubePosVel(cubes[i].id, p2.position().x, p2.position().y, p2.velocity().y, p2.velocity().x);
+        aimCubePosVel(cubes[0].id, p2.position().x, p2.position().y, p2.velocity().y, p2.velocity().x);
       }
     }
+
+    offscreen.endDraw();
+
+    background(0);
+    // render the scene, transformed using the corner pin surface
+    surface.render(offscreen);
   }
 
   // toio drop code end
@@ -226,10 +291,23 @@ void draw() {
 
 
 
-
 void keyPressed() {
   switch(key) {
+  case 'c':
+    // enter/leave calibration mode, where surfaces can be warped
+    // and moved
+    ks.toggleCalibration();
+    break;
 
+  case 'l':
+    // loads the saved layout
+    ks.load();
+    break;
+
+  case 's':
+    // saves the layout
+    ks.save();
+    break;
   case 'd':
     drop = true;
     chase = false;

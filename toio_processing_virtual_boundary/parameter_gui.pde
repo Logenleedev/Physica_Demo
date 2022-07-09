@@ -7,6 +7,7 @@ void parameter_gui() {
     .setBackgroundHeight(200)
     ;
   checkbox = cp5.addCheckBox("checkBox")
+    .setColorLabel(color(0))
     .setPosition(40, 40)
     .setSize(20, 20)
     .setItemsPerRow(1)
@@ -24,13 +25,14 @@ void parameter_gui() {
     ;
     
   checkbox1 = cp5.addCheckBox("checkBox1")
+    .setColorLabel(color(0))
     .setPosition(40, 60)
     .setSize(20, 20)
     .setItemsPerRow(1)
     .setSpacingColumn(30)
     .setSpacingRow(20)
     .addItem("Show plane", 0)
-    .addItem("Show object", 50)
+    .addItem("Show particle", 50)
     .addItem("Show object path", 100)
     .addItem("Show object position", 100)
     .moveTo(g2)
