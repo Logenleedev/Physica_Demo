@@ -37,6 +37,7 @@ boolean drop = false;
 Gravity mGravity = new Gravity();
 
 
+
 void settings() {
   size(1000, 1000, P3D);
 }
@@ -84,8 +85,8 @@ void setup() {
 }
 
 void draw() {
-  
-  
+
+
   background(255);
   stroke(0);
   long now = System.currentTimeMillis();
@@ -130,10 +131,6 @@ void draw() {
 
 
 
-
-
-
-
     stroke(255, 255, 0);
     fill(255, 0, 0);
 
@@ -143,7 +140,7 @@ void draw() {
 
 
     for (int i = 0; i< nCubes; ++i) {
-    
+
       if (cubes[i].isLost==false && cubes[i].p_isLost == true) {
         mParticle.position().set(cubes[i].x, cubes[i].y);
         mParticle.velocity().set(0, 0);
@@ -151,7 +148,8 @@ void draw() {
       }
       if (cubes[i].isLost==false) {
 
-        aimCubePosVel(cubes[i].id, mParticle.position().x, mParticle.position().y, mParticle.velocity().y, mParticle.velocity().x);
+        
+          aimCubePosVel(cubes[i].id, mParticle.position().x, mParticle.position().y, mParticle.velocity().y, mParticle.velocity().x);
       }
     }
   }

@@ -225,9 +225,9 @@ void draw() {
         }
       //}
     }
-
+    //draw the cubes
     if (checkbox1.getArrayValue()[3] == 1 ) {
-      //draw the cubes
+      
       for (int i = 0; i < cubes.length; ++i) {
         if (cubes[i].isLost==false) {
           offscreen.pushMatrix();

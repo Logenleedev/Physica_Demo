@@ -27,8 +27,8 @@ class Cube {
   float pre_speedX[] = new float [aveFrameNum];
   float pre_speedY[] = new float [aveFrameNum];
   
-  
-
+  float ave_accelerationX;
+  float ave_accelerationY;
 
   Cube(int i, boolean lost) {
     id = i;

@@ -26,7 +26,14 @@ void parameter_gui() {
     .setRange(0, 100)
     .setValue(30)
     .moveTo(g1);
-
+    
+  cp5.addSlider("Rope length")
+       .setPosition(40,90)
+       .setColorLabel(color(0))
+       .setSize(100,20)
+       .setRange(0, 200)
+       .setValue(30)
+       .moveTo(g1);
 
 
   checkbox = cp5.addCheckBox("checkBox")
