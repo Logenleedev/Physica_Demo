@@ -119,7 +119,7 @@ void draw() {
   // toio drop code start
   if (drop) {
 
-    translate(-45, -45);
+    //translate(-45, -45);
     final float mDeltaTime = 1.0f / frameRate;
     mPhysics.step(mDeltaTime);
 

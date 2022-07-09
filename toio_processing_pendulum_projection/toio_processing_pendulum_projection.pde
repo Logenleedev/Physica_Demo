@@ -20,6 +20,7 @@ Spring mConnection;
 ControlP5 cp5;
 CheckBox checkbox;
 CheckBox checkbox2;
+CheckBox checkbox3;
 Accordion accordion;
 
 
@@ -165,12 +166,14 @@ void draw() {
 
     // draw spring
     if (checkbox2.getArrayValue()[0] == 1) {
+      offscreen.stroke(0);
       offscreen.line(p1.position().x - projection_correction, p1.position().y - projection_correction, p2.position().x - projection_correction, p2.position().y - projection_correction);
       
     }
     // draw particle
     if (checkbox2.getArrayValue()[1] == 1) {
       offscreen.fill(0);
+      offscreen.stroke(0);
       offscreen.ellipse(p1.position().x - projection_correction, p1.position().y - projection_correction, 10, 10);
       offscreen.ellipse(p2.position().x - projection_correction, p2.position().y - projection_correction, 20, 20);
     }
@@ -197,6 +200,25 @@ void draw() {
         }
       }
     }
+    
+    if (checkbox3.getArrayValue()[0] == 1) {
+      // draw velocity vector
+      offscreen.pushMatrix();
+      offscreen.translate(cubes[0].x, cubes[0].y);
+      offscreen.stroke(255, 0, 0);
+      drawArrow(0, 0, cubes[0].ave_speedX, cubes[0].ave_speedY, 0);
+      offscreen.popMatrix();
+    }
+
+    if (checkbox3.getArrayValue()[1] == 1) {
+      // draw mParticle vector
+      offscreen.pushMatrix();
+      offscreen.translate(cubes[0].x, cubes[0].y);
+      offscreen.stroke(155, 89, 182);
+      drawArrow(0, 0, p2.velocity().x - projection_correction, p2.velocity().y - projection_correction, 0);
+      offscreen.popMatrix();
+    }
+
 
 
     if (checkbox.getArrayValue()[0] == 1) {
@@ -344,4 +366,16 @@ void mousePressed() {
 
 void mouseReleased() {
   mouseDrive=false;
+}
+
+void drawArrow(float x1, float y1, float x2, float y2, int i) {
+  if (cubes[i].isLost==false) {
+    float a = dist(x1, y1, x2, y2) / 50;
+    offscreen.pushMatrix();
+    offscreen.translate(x2 - projection_correction, y2- projection_correction);
+    offscreen.rotate(atan2(y2 - y1, x2 - x1));
+    offscreen.triangle(- a * 2, - a, 0, 0, - a * 2, a);
+    offscreen.popMatrix();
+    offscreen.line(x1- projection_correction, y1- projection_correction, x2- projection_correction, y2- projection_correction);
+  }
 }

@@ -13,11 +13,12 @@ Physics mPhysics;
 
 ControlP5 cp5;
 
+float mSegmentLength;
 Particle mPendulumRoot;
 Accordion accordion;
 
 Particle mPendulumTip;
-
+Spring mConnection;
 
 
 //for OSC
@@ -78,8 +79,8 @@ void setup() {
   mPendulumRoot.position().set(width / 4f, 100);
   mPendulumRoot.fixed(true);
   mPendulumTip = mPhysics.makeParticle(0, 0, 0, 0.05f);
-  float mSegmentLength = height / 5.0f;
-  Spring mConnection = new Spring(mPendulumRoot, mPendulumTip, mSegmentLength);
+  mSegmentLength = height / 5.0f;
+  mConnection = new Spring(mPendulumRoot, mPendulumTip, mSegmentLength);
   mConnection.damping(0.0f);
   mConnection.strength(10);
   mPhysics.add(mConnection);
@@ -95,6 +96,10 @@ void draw() {
   // change gravity using control p5 slider
   float s1 = cp5.getController("gravity").getValue();
   mGravity.force().set(0, s1);
+  
+  // change grope length using control p5 slider
+  float s2 = cp5.getController("Rope length").getValue();
+  mConnection.restlength(s2);
   //draw the "mat"
   fill(255);
   rect(45, 45, 410, 410);
