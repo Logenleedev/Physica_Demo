@@ -167,7 +167,7 @@ void draw() {
 
     stroke(204, 102, 0);
 
-   
+
 
 
     offscreen.beginDraw();
@@ -215,19 +215,23 @@ void draw() {
       offscreen.ellipse(mParticle.position().x - projection_correction, mParticle.position().y - projection_correction, 10, 10);
       offscreen.fill(255, 0, 0);
     }
-    
+
     // draw path
     if (checkbox1.getArrayValue()[2] == 1) {
       //if (cubes[0].isLost == false) {
-        for (int i = 0; i < cubes[0].aveFrameNumPosition; i++) {
-          fill(0, 0, 0);
-          offscreen.ellipse(cubes[0].cube_position_x[i] - projection_correction, cubes[0].cube_position_y[i] - projection_correction, 2, 2);
-        }
+
+      offscreen.fill(26, 82, 118);
+      offscreen.stroke(26, 82, 118);
+      for (int i = 0; i < cubes[0].aveFrameNumPosition; i++) {
+
+
+        offscreen.ellipse(cubes[0].cube_position_x[i] - projection_correction, cubes[0].cube_position_y[i] - projection_correction, 2, 2);
+      }
       //}
     }
     //draw the cubes
     if (checkbox1.getArrayValue()[3] == 1 ) {
-      
+
       for (int i = 0; i < cubes.length; ++i) {
         if (cubes[i].isLost==false) {
           offscreen.pushMatrix();

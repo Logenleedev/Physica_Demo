@@ -10,31 +10,27 @@ import teilchen.util.*;
 import controlP5.*;
 import deadpixel.keystone.*;
 
-// teilchen
 Physics mPhysics;
 Particle mPendulumRoot;
-Particle mPendulumTip;
+Particle mParticle;
 Spring mConnection;
 
-// controlP5
 ControlP5 cp5;
+Accordion accordion;
 CheckBox checkbox;
 CheckBox checkbox2;
 CheckBox checkbox3;
-Accordion accordion;
-
-
-//Keystone
-Keystone ks;
-CornerPinSurface surface;
-PGraphics offscreen;
-
 
 //for OSC
 OscP5 oscP5;
 //where to send the commands to
 NetAddress[] server;
 
+
+//Keystone
+Keystone ks;
+CornerPinSurface surface;
+PGraphics offscreen;
 
 //we'll keep the cubes here
 Cube[] cubes;
@@ -80,21 +76,15 @@ void setup() {
   frameRate(30);
 
   mPhysics = new Physics();
-  /* the direction of the gravity is defined by the 'force' vector */
-  mGravity.force().set(0, 30);
-  /* forces, like gravity or any other force, can be added to the system. they will be automatically applied to
-   all particles */
-  mPhysics.add(mGravity);
   mPendulumRoot = mPhysics.makeParticle(0, 0, 0, 0.05f);
-  mPendulumRoot.position().set(width / 4f, 100);
+  mPendulumRoot.position().set(width / 4f, 300);
   mPendulumRoot.fixed(true);
-  mPendulumTip = mPhysics.makeParticle(0, 0, 0, 0.05f);
-  float mSegmentLength = height / 5.0f;
-  mConnection = new Spring(mPendulumRoot, mPendulumTip, mSegmentLength);
+  mParticle = mPhysics.makeParticle(0, 0, 0, 0.05f);
+  float mSegmentLength = height / 10.0f;
+  mConnection = new Spring(mPendulumRoot, mParticle, mSegmentLength);
   mConnection.damping(0.0f);
   mConnection.strength(10);
   mPhysics.add(mConnection);
-
 
   //for projections
   ks = new Keystone(this);
@@ -106,7 +96,6 @@ void setup() {
   // CornerPinSurface.
   // (The offscreen buffer can be P2D or P3D)
   offscreen = createGraphics(410, 410, P3D);
-
 
   parameter_gui();
 }
@@ -122,7 +111,6 @@ void draw() {
   // change grope length using control p5 slider
   float s2 = cp5.getController("Rope length").getValue();
   mConnection.restlength(s2);
-  
   //draw the "mat"
   fill(255);
   rect(45, 45, 410, 410);
@@ -132,10 +120,11 @@ void draw() {
 
 
 
- 
+
+
   int time = 0;
 
-
+  println(cubes[0].origin_x);
   // toio drop code start
   if (drop) {
 
@@ -144,20 +133,19 @@ void draw() {
     mPhysics.step(1.0f / frameRate, 5);
 
     Particle p1 = mPendulumRoot;
-    Particle p2 = mPendulumTip;
+    Particle p2 = mParticle;
 
     stroke(0, 191);
     noFill();
 
-
     offscreen.beginDraw();
     offscreen.background(255);
+
 
     // draw spring
     if (checkbox2.getArrayValue()[0] == 1) {
       offscreen.stroke(0);
       offscreen.line(p1.position().x - projection_correction, p1.position().y - projection_correction, p2.position().x - projection_correction, p2.position().y - projection_correction);
-      
     }
     // draw particle
     if (checkbox2.getArrayValue()[1] == 1) {
@@ -171,7 +159,7 @@ void draw() {
       offscreen.fill(26, 82, 118);
       offscreen.stroke(26, 82, 118);
       for (int j = 0; j < cubes[0].aveFrameNumPosition; j++) {
-
+        
         offscreen.ellipse(cubes[0].cube_position_x[j] - projection_correction, cubes[0].cube_position_y[j] - projection_correction, 2, 2);
       }
     }
@@ -190,7 +178,7 @@ void draw() {
         }
       }
     }
-    
+
     if (checkbox3.getArrayValue()[0] == 1) {
       // draw velocity vector
       offscreen.pushMatrix();
@@ -209,25 +197,12 @@ void draw() {
       offscreen.popMatrix();
     }
 
-
-
     if (checkbox.getArrayValue()[0] == 1) {
-
-
-
-
-
-      if (cubes[0].isLost==false && cubes[0].p_isLost == true) {
-        p2.position().set(cubes[0].x, cubes[0].y);
-        p2.velocity().set(0, 0);
-        p2.velocity().mult(10);
-      }
-      if (cubes[0].isLost==false) {
-
-        aimCubePosVel(cubes[0].id, p2.position().x, p2.position().y, p2.velocity().y, p2.velocity().x);
-      }
+      projectile();
     }
-
+    if (checkbox.getArrayValue()[1] == 1) {
+      hit();
+    }
     offscreen.endDraw();
 
     background(0);
@@ -339,7 +314,6 @@ void keyPressed() {
 
 
 
-
 void mousePressed() {
   chase = false;
   spin = false;
@@ -349,6 +323,7 @@ void mousePressed() {
 void mouseReleased() {
   mouseDrive=false;
 }
+
 
 void drawArrow(float x1, float y1, float x2, float y2, int i) {
   if (cubes[i].isLost==false) {
