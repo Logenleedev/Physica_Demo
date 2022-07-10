@@ -8,6 +8,7 @@ import teilchen.force.*;
 import teilchen.integration.*;
 import teilchen.util.*;
 import controlP5.*;
+import deadpixel.keystone.*;
 /*
  * this sketch demonstrates how to create a `Spring` that connects two particles. it also
  * demonstrates how to create a `ViscousDrag` to slow down particle motion over time.
@@ -15,18 +16,25 @@ import controlP5.*;
  * drag mouse to move particle.
  */
 
+//teilchen
 Physics mPhysics;
-
+Particle mParticle;
 Spring mSpring;
 
+//control p5
 ControlP5 cp5;
-
 Accordion accordion;
+CheckBox checkbox;
+CheckBox checkbox2;
+CheckBox checkbox3;
 
 
+//Keystone
+Keystone ks;
+CornerPinSurface surface;
+PGraphics offscreen;
 
 
-Particle mParticle;
 
 
 //for OSC
@@ -38,6 +46,7 @@ NetAddress[] server;
 //we'll keep the cubes here
 Cube[] cubes;
 
+int projection_correction = 45;
 boolean mouseDrive = false;
 boolean chase = false;
 boolean spin = false;
@@ -109,6 +118,18 @@ void setup() {
    all particles */
   mPhysics.add(mGravity);
 
+
+  //for projections
+  ks = new Keystone(this);
+  surface = ks.createCornerPinSurface(410, 410, 20);
+
+  // We need an offscreen buffer to draw the surface we
+  // want projected
+  // note that we're matching the resolution of the
+  // CornerPinSurface.
+  // (The offscreen buffer can be P2D or P3D)
+  offscreen = createGraphics(410, 410, P3D);
+
   parameter_gui();
 }
 
@@ -133,6 +154,10 @@ void draw() {
   // change gravity using control p5 slider
   float s3 = cp5.getController("spring strength").getValue();
   mSpring.strength(s3);
+
+  // change gravity using control p5 slider
+  float s4 = cp5.getController("spring length").getValue();
+  mSpring.restlength(s4);
 
   //draw the "mat"
   fill(255);
@@ -159,105 +184,49 @@ void draw() {
 
   // toio drop code start
   if (drop) {
-    if (cubes[0].isLost==false && cubes[0].pre_press == 0 && cubes[0].press == 128) {
-      mSpring.a().position().set(cubes[0].x, cubes[0].y);
+
+    offscreen.beginDraw();
+    offscreen.background(255);
+
+    float spring_midPoint_x = (mSpring.a().position().x + mSpring.b().position().x) / 2;
+    float spring_midPoint_y = (mSpring.a().position().y + mSpring.b().position().y) / 2;
+    
+
+    if (checkbox3.getArrayValue()[2] == 1 ) {
+      offscreen.pushMatrix();
+      offscreen.translate(spring_midPoint_x, spring_midPoint_y);
+      String a = "Force is: " + calculateSpringForce(mSpring.strength(), mSpring.currentLength() - mSpring.restlength());
+      offscreen.textSize(15);
+      offscreen.text(a, 0, -40);
+      offscreen.popMatrix();
+    }
+    //draw the cubes
+    if (checkbox2.getArrayValue()[3] == 1 ) {
+
+      for (int i = 0; i < cubes.length; ++i) {
+        if (cubes[i].isLost==false) {
+          offscreen.pushMatrix();
+          offscreen.fill(255);
+          offscreen.translate(cubes[i].x - projection_correction, cubes[i].y - projection_correction);
+          offscreen.rotate(cubes[i].deg * PI/180);
+          offscreen.rect(-10, -10, 20, 20);
+          offscreen.rect(0, -5, 20, 10);
+          offscreen.popMatrix();
+        }
+      }
     }
 
 
-    println(mSpring.strength());
-
-    stroke(255, 255, 0);
-    fill(255, 0, 0);
-  
-    for (int i = 0; i< nCubes; ++i) {
-
-      if (cubes[i].isLost == true) {
-        cubes[i].pre_press = 0;
-        cubes[i].press = 0;
-        cubes[i].state = 1;
-
-        stroke(204, 102, 0);
-
-        ellipse(mSpring.a().position().x, mSpring.a().position().y, 5, 5);
-
-        line(mSpring.a().position().x, mSpring.a().position().y,
-          mSpring.b().position().x, mSpring.b().position().y);
-      }
-
-
-
-
-
-      if (cubes[i].isLost==false && cubes[i].p_isLost == true) {
-        mSpring.b().position().set(cubes[i].x, cubes[i].y);
-      }
-      if (cubes[i].isLost==false) {
-        cubes[i].pre_spring_length = cubes[i].current_spring_length;
-        cubes[i].current_spring_length = mSpring.currentLength();
-
-
-        //println(cubes[i].state);
-
-        if (cubes[i].pre_press == 0 && cubes[i].press == 128 ) {
-          mSpring.a().position().set(cubes[i].x, cubes[i].y);
-          cubes[i].pre_spring_length = 10;
-        }
-
-        // anchor changing code
-        if (cubes[i].current_spring_length < 50 && cubes[i].pre_spring_length < 50) {
-
-          stroke(204, 102, 0);
-
-          ellipse(mSpring.a().position().x, mSpring.a().position().y, 5, 5);
-
-
-
-          line(mSpring.a().position().x, mSpring.a().position().y,
-            mSpring.b().position().x, mSpring.b().position().y);
-
-
-          aimCubePosVel(cubes[i].id, mSpring.b().position().x, mSpring.b().position().y, mSpring.b().velocity().x, mSpring.b().velocity().y);
-          if ( eventDetection(cubes[i].x, cubes[i].y, cubes[i].prex, cubes[i].prey, cubes[i].speedX, cubes[i].speedY) ) {
-            mSpring.b().position().set(cubes[i].x, cubes[i].y);
-            println("spring forth touch detected!");
-          }
-        }
-
-        // slingshot release code
-        if (cubes[i].current_spring_length > 50 && cubes[i].state == 1) {
-
-         
-
-          aimCubePosVel(cubes[i].id, mSpring.b().position().x, mSpring.b().position().y, mSpring.b().velocity().x, mSpring.b().velocity().y);
-          if ( eventDetection(cubes[i].x, cubes[i].y, cubes[i].prex, cubes[i].prey, cubes[i].speedX, cubes[i].speedY) ) {
-            mSpring.b().position().set(cubes[i].x, cubes[i].y);
-            //println("cube 1 touch detected!");
-          }
-        }
-
-        if (cubes[i].pre_spring_length > 50 && cubes[i].current_spring_length < 50 && cubes[i].state == 1) {
-          //println("2 count is:" + count);
-          mParticle.position().set(mSpring.b().position().x, mSpring.b().position().y);
-          mParticle.velocity().set(mSpring.b().velocity().x, mSpring.b().velocity().y);
-
-          cubes[i].state += 1;
-        }
-
-        if (cubes[i].state >= 2 ) {
-
-
-          aimCubePosVel(cubes[i].id, mParticle.position().x, mParticle.position().y, mParticle.velocity().x, mParticle.velocity().y);
-          cubes[i].state += 1;
-        }
-
-        ellipse(mParticle.position().x, mParticle.position().y, 15, 15);
-        pushMatrix();
-        translate(mParticle.position().x, mParticle.position().y);
-        stroke(0, 255, 0);
-        line(0, 0, mParticle.velocity().x, mParticle.velocity().y);
-        popMatrix();
-      }
+    if (checkbox.getArrayValue()[0] == 1) {
+      grab_release();
     }
+
+
+    offscreen.endDraw();
+
+    background(0);
+    // render the scene, transformed using the corner pin surface
+    surface.render(offscreen);
   }
 
   // toio drop code end
@@ -331,7 +300,21 @@ void draw() {
 
 void keyPressed() {
   switch(key) {
+  case 'c':
+    // enter/leave calibration mode, where surfaces can be warped
+    // and moved
+    ks.toggleCalibration();
+    break;
 
+  case 'l':
+    // loads the saved layout
+    ks.load();
+    break;
+
+  case 's':
+    // saves the layout
+    ks.save();
+    break;
   case 'd':
     drop = true;
     chase = false;
@@ -368,4 +351,22 @@ void mouseReleased() {
 
 
   //ellipse(mParticle.position().x, mParticle.position().y, 10, 10);
+}
+
+void drawArrow(float x1, float y1, float x2, float y2, int i) {
+  if (cubes[i].isLost==false) {
+    float a = dist(x1, y1, x2, y2) / 50;
+    offscreen.pushMatrix();
+    offscreen.translate(x2 - projection_correction, y2- projection_correction);
+    offscreen.rotate(atan2(y2 - y1, x2 - x1));
+    offscreen.triangle(- a * 2, - a, 0, 0, - a * 2, a);
+    offscreen.popMatrix();
+    offscreen.line(x1- projection_correction, y1- projection_correction, x2- projection_correction, y2- projection_correction);
+  }
+}
+
+
+float calculateSpringForce(float springConstant, float deltaX){
+  float force = springConstant * deltaX;
+  return force;
 }
