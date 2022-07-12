@@ -340,15 +340,7 @@ void keyPressed() {
 
 
 
-void mousePressed() {
-  chase = false;
-  spin = false;
-  mouseDrive=true;
-}
 
-void mouseReleased() {
-  mouseDrive=false;
-}
 
 void drawArrow(float x1, float y1, float x2, float y2, int i) {
   if (cubes[i].isLost==false) {

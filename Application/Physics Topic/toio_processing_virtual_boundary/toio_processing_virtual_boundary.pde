@@ -212,8 +212,9 @@ void draw() {
 
     if (checkbox1.getArrayValue()[1] == 1) {
       // draw particle 1 location
-      offscreen.ellipse(mParticle.position().x - projection_correction, mParticle.position().y - projection_correction, 10, 10);
       offscreen.fill(255, 0, 0);
+      offscreen.ellipse(mParticle.position().x - projection_correction, mParticle.position().y - projection_correction, 10, 10);
+      
     }
 
     // draw path
@@ -237,6 +238,8 @@ void draw() {
           offscreen.pushMatrix();
           offscreen.translate(cubes[i].x - projection_correction, cubes[i].y - projection_correction);
           offscreen.rotate(cubes[i].deg * PI/180);
+          offscreen.fill(255, 255, 255);
+          offscreen.stroke(0, 0, 0);
           offscreen.rect(-10, -10, 20, 20);
           offscreen.rect(0, -5, 20, 10);
           offscreen.popMatrix();
@@ -372,15 +375,6 @@ void keyPressed() {
 
 
 
-void mousePressed() {
-  chase = false;
-  spin = false;
-  mouseDrive=true;
-}
-
-void mouseReleased() {
-  mouseDrive=false;
-}
 
 void drawArrow(float x1, float y1, float x2, float y2, int i) {
   if (cubes[i].isLost==false) {

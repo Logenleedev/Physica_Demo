@@ -349,6 +349,8 @@ void drawArrow(float x1, float y1, float x2, float y2, int i) {
 
 
 float calculateSpringForce(float springConstant, float deltaX){
-  float force = springConstant * deltaX;
+  // non-metal sheet * 0.008
+  // metal sheet * 0.02
+  float force = springConstant * deltaX ;
   return force;
 }

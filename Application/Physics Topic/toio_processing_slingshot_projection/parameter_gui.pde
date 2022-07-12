@@ -49,7 +49,7 @@ void parameter_gui() {
   cp5.addSlider("spring length")
     .setPosition(80, 180)
     .setSize(100, 20)
-    .setRange(40, 70)
+    .setRange(0, 70)
     .setValue(45)
     .moveTo(g1);
 
